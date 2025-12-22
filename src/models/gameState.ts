@@ -1,5 +1,5 @@
-import { generateTimeUTC } from "../../../lib/time/time.ts"
-//import { bst } from "../../../lib/bst/bst.ts"
+import { generateTimeUTC } from "../../lib/time/time.ts"
+//import { bst } from "../../lib/bst/bst.ts"
 
 export interface gameState {
     userIdLight: number;
