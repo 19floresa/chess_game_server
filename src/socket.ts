@@ -16,9 +16,9 @@ io.on("connection", (socket) =>
 {
     console.log("connected!")
 
-    socket.on("move", ({ x, y }, callback) => 
+    socket.on("move", ({ x, y, xNew, yNew }, callback) => 
     { 
-        console.log(`moved: (${x}, ${y})`)
+        console.log(`moved: (${x}, ${y}) to (${xNew}, ${yNew})`)
         callback({ status: "ok"})
     })
 
