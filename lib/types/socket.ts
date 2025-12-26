@@ -1,11 +1,11 @@
 export interface ServerToClientEvents {
-  noArg: () => void;
-  basicEmit: (a: number, b: string, c: Buffer) => void;
-  withAck: (d: string, callback: (e: number) => void) => void;
+  startGame: (callback: any) => void
+  endGame: (callback: any) => void
 }
 
 export interface ClientToServerEvents {
-  move: ({ x, y, xNew, yNew }: { x: number, y: number, xNew: number, yNew: number }, callback: any) => void;
+    connectPlayer2: (callback: any) => void
+    move: ({ x, y, xNew, yNew }: { x: number, y: number, xNew: number, yNew: number }, callback: any) => void
 }
 
 export interface InterServerEvents {
