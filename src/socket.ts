@@ -3,7 +3,7 @@ import { createServer } from "http"
 import { Server, type Socket } from "socket.io"
 import type { ServerToClientEvents, ClientToServerEvents, 
               InterServerEvents, SocketData } from "../lib/types/socket.ts"
-import GameStateMachine from "./models/gameStateMachine.ts"
+import { games } from "./models/gameStateMachine.ts"
 
 const httpServer = createServer(app)
 const io = new Server<

@@ -6,7 +6,7 @@ import GameActive from "./GameActive.ts"
 import GameRecent from "./GameRecent.ts"
 
 
-export default class GameStateMachine
+export class GameStateMachine
 {
     #search: GameSearching
     #active: GameActive
@@ -19,15 +19,15 @@ export default class GameStateMachine
         this.#recent = new GameRecent()
     }
 
-    changeState({ currentState, userId, gameId }: { currentState: state, userId: number, gameId: number }): boolean
+    changeState({ newState, userId, gameId }: { newState: state, userId: number, gameId: number }): boolean
     {
-        switch(currentState)
+        switch(newState)
         {
             case state.searching: // Start new game
                 return this.#changeStateSearch(userId)
-            case state.active: // Run game
+            case state.active:    // Run game
                 return this.#changeStateActive(userId, gameId)
-            case state.complete: // End game
+            case state.complete:  // End game
                 return this.#changeStateComplete(gameId)
             default:
                 throw new Error("State Machine: State not defined.")
@@ -50,6 +50,7 @@ export default class GameStateMachine
             game.status = state.active
             game.userIdDark = player2Id
             this.#active.add(game)
+            console.log(this.#active.find(gameId))
             return true
         }
         return false
@@ -61,6 +62,7 @@ export default class GameStateMachine
         if (game !== null)
         {
             game.status = state.complete
+            game.timeCompleted = generateTimeUTC()
             return true
         }
         return false
@@ -102,4 +104,18 @@ export default class GameStateMachine
         }
         return gameInfo
     }
+
+    findMatch(player2Id: number): number
+    {
+        const gameFound: gameState | null  = this.#search.findGame()
+        if (gameFound !== null)
+        {
+            const player1Id: number = gameFound.userIdLight
+            return player1Id === player2Id ? -2 : gameFound.gameId
+        }
+        return -1
+    }
 }
+
+export const games: GameStateMachine = new GameStateMachine()
+

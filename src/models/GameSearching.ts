@@ -2,7 +2,7 @@ import type { gameState } from "../../lib/types/state.ts"
 
 export default class GameSearching 
 {
-    #games: Array<gameState> = []
+    #games: gameState[] = []
 
     add(game: gameState): void
     {
@@ -45,5 +45,16 @@ export default class GameSearching
         }
         return null
 
+    }
+
+    findGame()
+    {
+        const games: gameState[] =  this.#games
+        if (games.length !== 0)
+        {
+            const game: gameState | undefined = games[0]
+            return game === undefined ? null : game
+        }
+        return null
     }
 }

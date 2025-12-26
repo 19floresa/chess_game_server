@@ -1,39 +1,31 @@
 import type { Request, Response } from "express"
-import { type gameState, gameNew } from "../models/gameState.ts"
-import { gameSearchFind, gameSearchAdd } from "../models/gameState.ts"
-import { gameActiveFind, gameActiveAdd } from "../models/gameState.ts"
-import { gameAllAdd, gameAllFind } from "../models/gameState.ts"
+import { type gameState, state } from "../../lib/types/state.ts"
 import { getPort } from "../../lib/port/port.ts"
+import { GameStateMachine, games } from "../models/gameStateMachine.ts"
 
-export function gameSearch(req: Request, res: Response): void
+export default function gameSearch(req: Request, res: Response): void
 {
     try
     {
         const { id }: { id: string } = req.body
-        const ID: number = parseInt(id)
-        const gameInfo: gameState = gameNew(ID)
+        const playerId: number = parseInt(id)
         const port: number = getPort()
-        if (gameAllFind(gameInfo.gameId) !== null)
-        { // TODO: Modify to return port if game was found... assumption reconnecting
-             throw new Error("Game was already created.")
+        const gameId: number = games.findMatch(playerId) // TODO: Check players are not already in a match
+        if (gameId === -2)
+        {
+            throw new Error("Light and dark player can not be the same person!")
         }
-
-        gameAllAdd(gameInfo)
-        gameSearchAdd(gameInfo)
-
+        else if (gameId === -1)
+        { 
+            // Create a new game
+            games.changeState({ newState: state.searching, userId: playerId, gameId: -1 })
+        }
+        else
+        {
+            // Add player 2 to a game already created
+            games.changeState({ newState: state.active, userId: playerId, gameId })
+        }
         res.send({ message: "Searching for player...", port }) // TODO: maybe remove sending port
-    }
-    catch (e)
-    {
-      res.status(400).json({ message: (e as Error).message })
-    }
-}
-
-export function gameMove(req: Request, res: Response): void
-{
-    try
-    {
-        res.send({ message: "Player moved..." })
     }
     catch (e)
     {
