@@ -23,18 +23,20 @@ export class GameStateMachine
     {
         switch(newState)
         {
-            case state.searching: // Start new game
-                return this.#changeStateSearch(userId)
-            case state.active:    // Run game
-                return this.#changeStateActive(userId, gameId)
-            case state.complete:  // End game
+            case state.initialize: // Start new game
+                return this.#changeStateInitialize(userId)
+            case state.ready:      // Ready to begin
+                return this.#changeStateReady(userId, gameId)
+            case state.active:     // Run game
+                return this.#changeStateActive(gameId)
+            case state.complete:   // End game
                 return this.#changeStateComplete(gameId)
             default:
                 throw new Error("State Machine: State not defined.")
         }
     }
 
-    #changeStateSearch(idPlayer1: number): boolean
+    #changeStateInitialize(idPlayer1: number): boolean
     {
         const gameNew: gameState = this.#gameNew(idPlayer1)
         this.#recent.add(gameNew)
@@ -42,15 +44,25 @@ export class GameStateMachine
         return true
     }
 
-    #changeStateActive(player2Id: number, gameId: number): boolean
+    #changeStateReady(player2Id: number, gameId: number): boolean
+    {
+        const game: gameState | null = this.#search.find(gameId)
+        if (game !== null)
+        {
+            game.status = state.ready
+            game.idP2 = player2Id
+            return true
+        }
+        return false
+    }
+
+    #changeStateActive(gameId: number): boolean
     {
         const game: gameState | null = this.#search.remove(gameId)
         if (game !== null)
         {
             game.status = state.active
-            game.userIdDark = player2Id
             this.#active.add(game)
-            console.log(this.#active.find(gameId))
             return true
         }
         return false
@@ -88,19 +100,21 @@ export class GameStateMachine
         }
     }
 
-    #gameNew(userIdLight: number): gameState
+    #gameNew(player1: number): gameState
     {
         const gameId = this.#gameGenerateId()
         const timeStarted = generateTimeUTC()
         const gameInfo: gameState =
         {
-            userIdLight,
-            userIdDark: -1,
+            idP1: player1,
+            idP2: -1,
+            connectedP1: false,
+            connectedP2: false,
             gameId,
             gameHistory: [],
             timeStarted,
             timeCompleted: -1,
-            status: state.searching
+            status: state.initialize
         }
         return gameInfo
     }
@@ -110,10 +124,27 @@ export class GameStateMachine
         const gameFound: gameState | null  = this.#search.findGame()
         if (gameFound !== null)
         {
-            const player1Id: number = gameFound.userIdLight
+            const player1Id: number = gameFound.idP1
             return player1Id === player2Id ? -2 : gameFound.gameId
         }
         return -1
+    }
+
+    /**
+     * This function return the id of player 1 and 2.
+     * @param gameId  Id of the game
+     * @returns [ player1, player2 ]
+     */
+    findPlayersId(gameId: number): [number, number]
+    {
+        const gameInfo: gameState | null = this.#recent.find(gameId)
+        if (gameInfo !== null)
+        {
+            const player1: number = gameInfo.idP1
+            const player2: number = gameInfo.idP2
+            return [ player1, player2 ]
+        }
+        return [ -1, -1 ]
     }
 }
 

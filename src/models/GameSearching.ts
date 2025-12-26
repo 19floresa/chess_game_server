@@ -33,11 +33,11 @@ export default class GameSearching
         return null
     }
 
-    findUserId(userId: number, isLight: boolean): gameState | null
+    findUserId(userId: number, isPlayer1: boolean): gameState | null
     {
         for (const game of this.#games)
         {
-            const id: number = isLight ? game.userIdLight : game.userIdDark
+            const id: number = isPlayer1 ? game.idP1 : game.idP2
             if (userId === id)
             {
                 return game
