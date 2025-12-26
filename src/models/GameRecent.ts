@@ -10,9 +10,11 @@ export default class GameRecent
         this.#games[gameId] = game
     }
 
-    remove()
+    remove(gameId: number): gameState | null
     {
-        throw new Error("Remove func not built.")
+        const game: gameState | undefined = this.#games[gameId]
+        delete this.#games[gameId]
+        return game === undefined ? null : game
     }
 
     find(gameId: number): gameState | null
