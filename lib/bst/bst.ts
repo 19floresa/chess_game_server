@@ -1,22 +1,23 @@
+import type { gameState } from "../types/state.ts"
 
 class node
 {
     #left: node | null
     #right: node | null
     #key: number
-    #value: any
+    #value: gameState
 
-    constructor(key: number, value: any, left: node | null = null, 
-                                         right: node | null = null)
+    constructor(key: number, value: gameState, left: node | null = null, 
+                                               right: node | null = null)
     {
-        this.#left = null
-        this.#right = null
+        this.#left = left
+        this.#right = right
         this.#key = key
         this.#value = value
     }
 
-    #create(key: number, value: any, left: node | null = null, 
-                                     right: node | null = null)
+    #create(key: number, value: gameState, left: node | null = null, 
+                                           right: node | null = null)
     {
         return new node(key, value, left, right)
     }
@@ -27,7 +28,7 @@ class node
         return child
     }
 
-    add(key: number, value: any): boolean
+    add(key: number, value: gameState): boolean
     {
         const { parent, child } = this.#findNode(key)
         if (parent !== null && child === null)
@@ -116,32 +117,32 @@ class node
         return []
     }
 
-    getKey()
+    getKey(): number
     {
         return this.#key
     }
 
-    getValue()
+    getValue(): gameState
     {
         return this.#value
     }
 
-    getLeft()
+    getLeft(): node | null
     {
         return this.#left
     }
 
-    getRight()
+    getRight(): node | null
     {
         return this.#right
     }
 
-    setLeft(node: node)
+    setLeft(node: node | null): void
     {
         this.#left = node
     }
 
-    setRight(node: node)
+    setRight(node: node | null): void
     {
         this.#right = node
     }
@@ -247,15 +248,15 @@ class node
 
 export class bst
 {
-    #root: node
-    constructor(key: number, value: any, left: node | null = null, 
-                                         right: node | null = null)
+    #root: node | null = null
+    constructor(key: number, value: gameState, left: node | null = null, 
+                                               right: node | null = null)
     {
         const newRoot = new node(key, value, left, right)
         this.setRoot(newRoot)
     }
 
-    add(key: number, value: any): boolean
+    add(key: number, value: gameState): boolean
     {
         const root = this.getRoot()
         if (root != null)
@@ -265,7 +266,7 @@ export class bst
         return false
     }
 
-    search(key: number): node
+    search(key: number): node | null
     {
         const root = this.getRoot()
         if (root != null)
@@ -287,12 +288,12 @@ export class bst
         return false
     }
 
-    getRoot(): node
+    getRoot(): node | null
     {
         return this.#root
     }
 
-    setRoot(node: node): void
+    setRoot(node: node | null): void
     {
         this.#root = node
     }
