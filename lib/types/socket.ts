@@ -2,23 +2,24 @@ export interface ServerToClientEvents {
 
   /**
    * This function tells the client to began the game.
-   * @param callback  Callback function
    */
-  startGame: (callback: any) => void
+  startGame: () => void
 
   /**
    * This function tells the client to end the game.
-   * @param callback  Callback function
    */
-  endGame: (callback: any) => void
+  endGame: () => void
+  connectPlayer: () => void
 }
 
 export interface ClientToServerEvents {
     /**
-     * This function setups the connection of player 2.
+     * This function setups player in the game.
+     * @param param0.userId  Id of player
+     * @param param0.gameId  Room number of the game
      * @param callback  Callback function
      */
-    connectPlayer2: (callback: any) => void
+    connectPlayer: ({ userId, gameId }: { userId: number, gameId: number }, callback: any) => void
 
     /**
      * This function closes a room early.
@@ -27,7 +28,7 @@ export interface ClientToServerEvents {
      * @param callback  Callback function
      */
     closeGame: ({ gameId }: { gameId: number }, callback: any) => void
-    
+
     /**
      * This function validates if a piece can move from the old to the new position.
      * @param param0.x  Old horizontal position

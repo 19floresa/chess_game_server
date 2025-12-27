@@ -26,6 +26,13 @@ export default function gameSearch(req: Request, res: Response): void
                     // Should never be reached
                     throw new Error("New game could not be created.")
                 }
+
+                const game: gameState | null = games.findGameWithP1(playerId)
+                if (game === null)
+                {
+                    throw new Error("Could not find created game.")
+                }
+                respMsg.gameId = game.gameId
                 break
             }
             default:
