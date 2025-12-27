@@ -1,7 +1,7 @@
 export enum state {
     initialize,
     ready,
-    active,
+    running,
     complete
 }
 
@@ -14,5 +14,6 @@ export interface gameState {
     gameHistory: []
     timeStarted: number
     timeCompleted: number
+    lastAccessed: number
     status: state
 }
