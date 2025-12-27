@@ -41,29 +41,31 @@ class node
         return false
     }
 
-    delete(key: number): node
+    delete(key: number): node | null
     {
-        let newRoot: node = this
+        let newRoot: node | null = this
         // Find node to remove
         const { parent, child } = this.#findNode(key)
         if (parent === null && child !== null)
         {
             const { successor } = child.#extractSuccessor()   
-            console.log(`current: ${successor.getKey()}`)
+            //console.log(`current: ${successor.getKey()}`)
             if (successor !== null)
             {
-                const successorKey = successor.getKey()
-                const childLeft = child.getLeft()
-                const childRight = child.getRight()
-                if (successorKey !== childLeft.getKey())
+                // Check if successor is the immediate child of the node to be deleted
+                // so it is not readded into the bst.
+                const successorKey: number = successor.getKey()
+                const childLeft: node | null = child.getLeft()
+                const childRight: node | null = child.getRight()
+                if (successorKey !== childLeft?.getKey())
                 {
-                    console.log(`left: ${childLeft.getKey()}`)
+                    //console.log(`left: ${childLeft.getKey()}`)
                     successor.setLeft(childLeft)
                 }
                 
-                if (successorKey !== childRight.getKey())
+                if (successorKey !== childRight?.getKey())
                 {
-                    console.log(`right: ${childRight.getKey()}`)
+                    //console.log(`right: ${childRight.getKey()}`)
                     successor.setRight(childRight)
                 }
             }
@@ -77,21 +79,24 @@ class node
             const { successor } = child.#extractSuccessor()
             if (successor !== null)
             {
-                const successorKey = successor.getKey()
-                const childLeft = child.getLeft()
-                const childRight = child.getRight()
-                if (successorKey !== childLeft.getKey())
+                // Check if successor is the immediate child of the node to be deleted
+                // so it is not readded into the bst.
+                const successorKey: number = successor.getKey()
+                const childLeft: node | null = child.getLeft()
+                const childRight: node | null = child.getRight()
+                if (successorKey !== childLeft?.getKey())
                 {
                     successor.setLeft(child.getLeft())
                 }
                 
-                if (successorKey !== childRight.getKey())
+                if (successorKey !== childRight?.getKey())
                 {
                     successor.setRight(child.getRight())
                 }
             }
 
-            if ((child.getKey() - parent.getKey()) <= 0)
+            const keyDiff: number = child.getKey() - parent.getKey()
+            if (keyDiff <= 0)
             {
                 parent.setLeft(successor)
             }
@@ -105,7 +110,7 @@ class node
         return newRoot
     }
 
-    inorderTraversal(node: node = this): number[]
+    inorderTraversal(node: node | null = this): number[]
     {
         if (node !== null)
         {
@@ -156,14 +161,14 @@ class node
      * @param key  Node to find
      * @returns  Data of the last comparison
      */
-    #findNode(key: number): { parent: node, child: node }
+    #findNode(key: number): { parent: node | null, child: node | null }
     {
         // Find parent node of child with correct key
-        let parent: node = null
-        let current: node = this
+        let parent: node | null = null
+        let current: node | null = this
         while (current !== null)
         {
-            const comparison = key - current.getKey()
+            const comparison: number = key - current.getKey()
             if (comparison === 0)
             {
                 break
@@ -178,11 +183,11 @@ class node
         return { parent, child: current }
     }
 
-    #extractSuccessor(): { successor: node }
+    #extractSuccessor(): { successor: node | null }
     {
-        let successor: node = this.getRight()
+        let successor: node | null = this.getRight()
         let successorParent: node = this
-        let successorTemporary: node = null
+        let successorTemporary: node | null = null
         if (successor !== null)
         {
             // Find smallest number larger then removed node
