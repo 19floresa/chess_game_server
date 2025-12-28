@@ -1,6 +1,6 @@
-import { Chesspiece } from "./chesspiece.ts"
+import Chesspiece from "./chesspiece.ts"
 
-export class Pawn extends Chesspiece
+export default class Pawn extends Chesspiece
 {
     #firstMove: boolean = true
     #captureFlag = false

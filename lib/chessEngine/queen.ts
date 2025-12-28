@@ -1,12 +1,13 @@
-import { Chesspiece } from "./chesspiece.ts"
-import { Rook } from "./rook.ts"
-import { Bishop } from "./bishop.ts"
+import Chesspiece from "./chesspiece.ts"
+import Rook from "./rook.ts"
+import Bishop from "./bishop.ts"
+import color from "../types/color.ts"
 
-export class Queen extends Chesspiece
+export default class Queen extends Chesspiece
 {
     #bishop: Bishop
     #rook: Rook
-    constructor(newX: number, newY: number, color: string)
+    constructor(newX: number, newY: number, color: color)
     {
         super(newX, newY, color)
         this.#bishop = new Bishop(newX, newY, color)

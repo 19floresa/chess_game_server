@@ -1,6 +1,6 @@
-import { Chesspiece } from "./chesspiece.ts"
+import Chesspiece from "./chesspiece.ts"
 
-export class King extends Chesspiece
+export default class King extends Chesspiece
 {
     isPositionValid(newX: number, newY: number): boolean {
         const [ xDif, yDif ] = this.calcPosDiffByGreater(newX, newY)

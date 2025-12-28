@@ -1,58 +1,25 @@
+import color from "../types/color.ts"
 
-const dark: string = "dark"
-const light: string = "light"
-
-export abstract class Chesspiece {
+export default abstract class Chesspiece {
     
     #xPos: number = -1
     #yPos: number = -1
-    #color: string = ""
+    #color: color = color.light
     #name: string = ""
 
-    constructor(newX: number, newY: number, color: string)
+    constructor(newX: number, newY: number, color: color)
     {
         this.setNewPosition(newX, newY)
         this.setColor(color)
         this.#setName()
     }
 
-    #setName(): void
+    move(newX: number, newY: number): boolean 
     {
-        this.#name = `${this.constructor.name.toLowerCase()}_${this.#color}`
-    }
-
-    getName(): string
-    {
-        return this.#name
-    }
-
-    setColor(color: string): void
-    {
-        const c = color.toLowerCase()
-        if (c === dark || c === light)
-        {
-            this.#color = c
-        }
-        else
-        {
-            throw Error("Invalid color.")
-        }
-    }
-
-    setNewPosition(newX: number, newY: number)
-    {
-        this.#xPos = newX
-        this.#yPos = newY
-    }
-
-    getCurrentPosition(): [ number, number ]
-    {
-        return [ this.#xPos, this.#yPos ]
-    }
-    
-    getColor(): string
-    {
-        return this.#color
+        const isValidRange: boolean = this.isWithinValidRange(newX, newY)
+        const isMoving: boolean = this.isMoving(newX, newY)
+        const isNewMoveValid: boolean = this.isPositionValid(newX, newY)
+        return isValidRange && isMoving && isNewMoveValid
     }
 
     isWithinValidRange(newX: number, newY: number): boolean 
@@ -99,10 +66,10 @@ export abstract class Chesspiece {
     calcPosDiffByColor(newX: number, newY: number): [ number, number]
     {
         const [ x, y ] = this.getCurrentPosition()
-        const color = this.getColor()
+        const c: color = this.getColor()
         let xDif: number = 0
         let yDif: number = 0
-        if (color === light)
+        if (c === color.light)
         {
             xDif = x - newX
             yDif = y - newY
@@ -123,12 +90,36 @@ export abstract class Chesspiece {
         return [ xDif, yDif ]
     }
 
-    move(newX: number, newY: number): boolean 
+    getName(): string
     {
-        const isValidRange:   boolean = this.isWithinValidRange(newX, newY)
-        const isMoving:    boolean = this.isMoving(newX, newY)
-        const isNewMoveValid: boolean = this.isPositionValid(newX, newY)
-        return isValidRange && isMoving && isNewMoveValid
+        return this.#name
+    }
+    
+    getColor(): color
+    {
+        return this.#color
+    }
+
+    getCurrentPosition(): [ number, number ]
+    {
+        return [ this.#xPos, this.#yPos ]
+    }
+
+    #setName(): void
+    {
+        const c: string = color[this.getColor()]
+        this.#name = `${this.constructor.name.toLowerCase()}_${c}`
+    }
+
+    setColor(color: color): void
+    {
+        this.#color = color
+    }
+
+    setNewPosition(newX: number, newY: number)
+    {
+        this.#xPos = newX
+        this.#yPos = newY
     }
 
     abstract isPositionValid(newX: number, newY: number): boolean

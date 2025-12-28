@@ -1,6 +1,6 @@
-import { Chesspiece } from "./chesspiece.ts"
+import Chesspiece from "./chesspiece.ts"
 
-export class Bishop extends Chesspiece
+export default class Bishop extends Chesspiece
 {
     isPositionValid(newX: number, newY: number): boolean 
     {

@@ -1,12 +1,13 @@
-import { Bishop } from "./bishop.ts"
-import { Chesspiece } from "./chesspiece.ts"
-import { King } from "./king.ts"
-import { Knight } from "./knight.ts"
-import { Pawn } from "./pawn.ts"
-import { Queen } from "./queen.ts"
-import { Rook } from "./rook.ts"
+import Chesspiece from "./chesspiece.ts"
+import King from "./king.ts"
+import Knight from "./knight.ts"
+import Pawn from "./pawn.ts"
+import Queen from "./queen.ts"
+import Rook from "./rook.ts"
+import Bishop from "./bishop.ts"
+import color from "../types/color.ts"
 
-export interface playerProp {
+export interface playerPieces {
     king: King, 
     queen: Queen[], 
     bishop: Bishop[], 
@@ -17,24 +18,24 @@ export interface playerProp {
 
 export class Player 
 {
-    #playerPieces: playerProp
+    #playerPieces: playerPieces
 
-    constructor(color: string)
+    constructor(c: color)
     {
-        const row1 = (color === "dark" ) ? 0 : 7;
-        const row2 = (color === "dark" ) ? 1 : 6;
-        const data: playerProp = {
-            king: new King(4, row1, color),
-            queen: [ new Queen(3, row1, color) ],
-            bishop: [ new Bishop(2, row1, color), new Bishop(5, row1, color) ],
+        const row1 = (c === color.dark ) ? 0 : 7;
+        const row2 = (c === color.dark ) ? 1 : 6;
+        const data: playerPieces = {
+            king: new King(4, row1, c),
+            queen: [ new Queen(3, row1, c) ],
+            bishop: [ new Bishop(2, row1, c), new Bishop(5, row1, c) ],
             pawn: [],
-            knight: [ new Knight(1, row1, color), new Knight( 6, row1, color) ],
-            rook: [ new Rook(0, row1, color), new Rook(7, row1, color) ]
+            knight: [ new Knight(1, row1, c), new Knight( 6, row1, c) ],
+            rook: [ new Rook(0, row1, c), new Rook(7, row1, c) ]
         }
 
         for (let i = 0; i < 8; i++)
         {
-            data.pawn.push(new Pawn(i, row2, color))
+            data.pawn.push(new Pawn(i, row2, c))
         }
 
         this.#playerPieces = data
