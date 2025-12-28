@@ -1,6 +1,6 @@
 import { generateTimeUTC } from "../../lib/time/time.ts"
 //import { bst } from "../../lib/bst/bst.ts"
-import {  state } from "../../lib/types/state.ts"
+import state from "../../lib/types/state.ts"
 import type gameInfo from "../../lib/types/gameInfo.ts"
 import GameSearching from "./GameSearching.ts"
 import GameActive from "./GameActive.ts"

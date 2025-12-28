@@ -1,4 +1,4 @@
-import { state } from "./state.ts"
+import state from "./state.ts"
 import Chessboard from "../chessEngine/chessboard.ts"
 
 export default interface gameInfo {

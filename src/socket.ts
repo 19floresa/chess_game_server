@@ -4,7 +4,7 @@ import { Server, type Socket } from "socket.io"
 import type { ServerToClientEvents, ClientToServerEvents, 
               InterServerEvents, SocketData } from "../lib/types/socket.ts"
 import { games } from "./models/gameStateMachine.ts"
-import { state } from "../lib/types/state.ts"
+import state from "../lib/types/state.ts"
 
 // TODO: Check that a player does not start another game
 // TODO: Cleanup stale games

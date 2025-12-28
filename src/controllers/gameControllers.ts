@@ -1,5 +1,5 @@
 import type { Request, Response } from "express"
-import { state } from "../../lib/types/state.ts"
+import state from "../../lib/types/state.ts"
 import type gameInfo from "../../lib/types/gameInfo.ts"
 import { getPort } from "../../lib/port/port.ts"
 import { games } from "../models/gameStateMachine.ts"
