@@ -1,7 +1,8 @@
 import type { Request, Response } from "express"
-import { type gameState, state } from "../../lib/types/state.ts"
+import { state } from "../../lib/types/state.ts"
+import type gameInfo from "../../lib/types/gameInfo.ts"
 import { getPort } from "../../lib/port/port.ts"
-import { GameStateMachine, games } from "../models/gameStateMachine.ts"
+import { games } from "../models/gameStateMachine.ts"
 
 export default function gameSearch(req: Request, res: Response): void
 {
@@ -27,7 +28,7 @@ export default function gameSearch(req: Request, res: Response): void
                     throw new Error("New game could not be created.")
                 }
 
-                const game: gameState | null = games.findGameWithP1(playerId)
+                const game: gameInfo | null = games.findGameWithP1(playerId)
                 if (game === null)
                 {
                     throw new Error("Could not find created game.")

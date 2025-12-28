@@ -1,25 +1,25 @@
-import type { gameState } from "../../lib/types/state.ts"
+import type gameInfo from "../../lib/types/gameInfo.ts"
 
 export default class GameRecent 
 {
-    #games: Record<number, gameState> = {}
+    #games: Record<number, gameInfo> = {}
 
-    add(game: gameState): void
+    add(game: gameInfo): void
     {
         const gameId = game.gameId
         this.#games[gameId] = game
     }
 
-    remove(gameId: number): gameState | null
+    remove(gameId: number): gameInfo | null
     {
-        const game: gameState | undefined = this.#games[gameId]
+        const game: gameInfo | undefined = this.#games[gameId]
         delete this.#games[gameId]
         return game === undefined ? null : game
     }
 
-    find(gameId: number): gameState | null
+    find(gameId: number): gameInfo | null
     {
-        const game: gameState | undefined = this.#games[gameId]
+        const game: gameInfo | undefined = this.#games[gameId]
         return game === undefined ? null : game
     }
 }

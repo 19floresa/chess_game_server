@@ -1,14 +1,14 @@
-import type { gameState } from "../types/state.ts"
+import type gameInfo from "../types/gameInfo.ts"
 
 class node
 {
     #left: node | null
     #right: node | null
     #key: number
-    #value: gameState
+    #value: gameInfo
 
-    constructor(key: number, value: gameState, left: node | null = null, 
-                                               right: node | null = null)
+    constructor(key: number, value: gameInfo, left: node | null = null, 
+                                              right: node | null = null)
     {
         this.#left = left
         this.#right = right
@@ -16,8 +16,8 @@ class node
         this.#value = value
     }
 
-    #create(key: number, value: gameState, left: node | null = null, 
-                                           right: node | null = null)
+    #create(key: number, value: gameInfo, left: node | null = null, 
+                                          right: node | null = null)
     {
         return new node(key, value, left, right)
     }
@@ -28,7 +28,7 @@ class node
         return child
     }
 
-    add(key: number, value: gameState): boolean
+    add(key: number, value: gameInfo): boolean
     {
         const { parent, child } = this.#findNode(key)
         if (parent !== null && child === null)
@@ -127,7 +127,7 @@ class node
         return this.#key
     }
 
-    getValue(): gameState
+    getValue(): gameInfo
     {
         return this.#value
     }
@@ -254,14 +254,14 @@ class node
 export class bst
 {
     #root: node | null = null
-    constructor(key: number, value: gameState, left: node | null = null, 
-                                               right: node | null = null)
+    constructor(key: number, value: gameInfo, left: node | null = null, 
+                                              right: node | null = null)
     {
         const newRoot = new node(key, value, left, right)
         this.setRoot(newRoot)
     }
 
-    add(key: number, value: gameState): boolean
+    add(key: number, value: gameInfo): boolean
     {
         const root = this.getRoot()
         if (root != null)

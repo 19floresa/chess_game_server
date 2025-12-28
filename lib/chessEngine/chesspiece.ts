@@ -1,13 +1,13 @@
-import { Chessboard } from "./chessboard.ts"
 
 const dark: string = "dark"
 const light: string = "light"
 
 export abstract class Chesspiece {
-    #xPos: number
-    #yPos: number
-    #color: string
-    #name: string
+    
+    #xPos: number = -1
+    #yPos: number = -1
+    #color: string = ""
+    #name: string = ""
 
     constructor(newX: number, newY: number, color: string)
     {

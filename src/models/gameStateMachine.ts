@@ -1,9 +1,11 @@
 import { generateTimeUTC } from "../../lib/time/time.ts"
 //import { bst } from "../../lib/bst/bst.ts"
-import { type gameState, state } from "../../lib/types/state.ts"
+import {  state } from "../../lib/types/state.ts"
+import type gameInfo from "../../lib/types/gameInfo.ts"
 import GameSearching from "./GameSearching.ts"
 import GameActive from "./GameActive.ts"
 import GameRecent from "./GameRecent.ts"
+import Chessboard from "../../lib/chessEngine/chessboard.ts"
 
 
 export class GameStateMachine
@@ -38,7 +40,7 @@ export class GameStateMachine
 
     #changeStateInitialize(idPlayer1: number): boolean
     {
-        const gameNew: gameState = this.#gameNew(idPlayer1)
+        const gameNew: gameInfo = this.#gameNew(idPlayer1)
         this.#recent.add(gameNew)
         this.#search.add(gameNew)
         return true
@@ -46,7 +48,7 @@ export class GameStateMachine
 
     #changeStateReady(player2Id: number, gameId: number): boolean
     {
-        const game: gameState | null = this.#search.find(gameId)
+        const game: gameInfo | null = this.#search.find(gameId)
         if (game !== null)
         {
             game.status = state.ready
@@ -58,7 +60,7 @@ export class GameStateMachine
 
     #changeStateRunning(gameId: number): boolean
     {
-        const game: gameState | null = this.#search.remove(gameId)
+        const game: gameInfo | null = this.#search.remove(gameId)
         if (game !== null)
         {
             game.status = state.running
@@ -70,7 +72,7 @@ export class GameStateMachine
 
     #changeStateComplete(gameId: number): boolean
     {
-        const game: gameState | null = this.#active.remove(gameId)
+        const game: gameInfo | null = this.#active.remove(gameId)
         if (game !== null)
         {
             game.status = state.complete
@@ -100,11 +102,11 @@ export class GameStateMachine
         }
     }
 
-    #gameNew(player1: number): gameState
+    #gameNew(player1: number): gameInfo
     {
         const gameId = this.#gameGenerateId()
         const timeStarted = generateTimeUTC()
-        const gameInfo: gameState =
+        const game: gameInfo =
         {
             idP1: player1,
             idP2: -1,
@@ -115,14 +117,15 @@ export class GameStateMachine
             timeStarted,
             timeCompleted: -1,
             lastAccessed: timeStarted,
-            status: state.initialize
+            status: state.initialize,
+            gameEngine: new Chessboard()
         }
-        return gameInfo
+        return game
     }
 
     findMatch(idP2: number): number
     {
-        const gameFound: gameState | null  = this.#search.findGame()
+        const gameFound: gameInfo | null  = this.#search.findGame()
         if (gameFound !== null)
         {
             const idP1: number = gameFound.idP1
@@ -131,7 +134,7 @@ export class GameStateMachine
         return -1
     }
 
-    findGameWithP1(idP1: number): gameState | null
+    findGameWithP1(idP1: number): gameInfo | null
     {
         return this.#search.findUserId(idP1, true)
     }
@@ -143,11 +146,11 @@ export class GameStateMachine
      */
     findPlayersId(gameId: number): [ number, number ]
     {
-        const gameInfo: gameState | null = this.#recent.find(gameId)
-        if (gameInfo !== null)
+        const game: gameInfo | null = this.#recent.find(gameId)
+        if (game !== null)
         {
-            const player1: number = gameInfo.idP1
-            const player2: number = gameInfo.idP2
+            const player1: number = game.idP1
+            const player2: number = game.idP2
             return [ player1, player2 ]
         }
         return [ -1, -1 ]
@@ -155,11 +158,11 @@ export class GameStateMachine
 
     findPlayerConnection(gameId: number): boolean
     {
-        const gameInfo: gameState | null = this.#recent.find(gameId)
-        if (gameInfo !== null)
+        const game: gameInfo | null = this.#recent.find(gameId)
+        if (game !== null)
         {
-            const connectedP1: boolean = gameInfo.connectedP1
-            const connectedP2: boolean = gameInfo.connectedP2
+            const connectedP1: boolean = game.connectedP1
+            const connectedP2: boolean = game.connectedP2
             return connectedP1 && connectedP2
         }
         return false
@@ -167,17 +170,17 @@ export class GameStateMachine
 
     setPlayerConnection(gameId: number, userId: number, value: boolean): boolean
     {
-        const gameInfo: gameState | null = this.#recent.find(gameId)
-        if (gameInfo !== null)
+        const game: gameInfo | null = this.#recent.find(gameId)
+        if (game !== null)
         {
             const [ idP1, idP2 ] = this.findPlayersId(gameId)
             if (userId === idP1)
             {
-                gameInfo.connectedP1 = value
+                game.connectedP1 = value
             }
             else if (userId === idP2)
             {
-                gameInfo.connectedP2 = value
+                game.connectedP2 = value
             }
             else
             {
@@ -190,10 +193,10 @@ export class GameStateMachine
 
     isGameRunning(gameId: number): boolean
     {
-        const gameInfo: gameState | null = this.#recent.find(gameId)
-        if (gameInfo !== null)
+        const game: gameInfo | null = this.#recent.find(gameId)
+        if (game !== null)
         {
-            const currentState: state = gameInfo.status
+            const currentState: state = game.status
             return currentState === state.running
         }
         return false

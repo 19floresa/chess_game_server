@@ -1,7 +1,7 @@
 import { Bishop } from "./bishop.ts"
 import { Chesspiece } from "./chesspiece.ts"
 import { Knight } from "./knight.ts"
-import { playerProp, Player } from "./player.ts"
+import { type playerProp, Player } from "./player.ts"
 import { Queen } from "./queen.ts"
 import { Rook } from "./rook.ts"
 
@@ -10,17 +10,17 @@ export default class Chessboard
     readonly maxLength: number = 8
     readonly maxWidth: number = 8
 
-    #player1: Player //= null // black player (dark)
-    #player2: Player //= null // white player (light)
+    #player1: Player  // black player (dark)
+    #player2: Player  // white player (light)
 
-    #gameState: string
+    #currentPlayer: string
     #gameBoard: Chesspiece[][]
 
     constructor()
     {
         this.#player1 = new Player("dark")
         this.#player2 = new Player("light")
-        this.#gameState = "light"
+        this.#currentPlayer = "light"
 
         this.#gameBoard = new Array(this.maxLength)
         for (let i = 0; i < this.maxLength; i++)
@@ -73,12 +73,12 @@ export default class Chessboard
 
     changePlayer()
     {
-        this.#gameState = (this.#gameState === "dark") ?  "light" : "dark"
+        this.#currentPlayer = (this.#currentPlayer === "dark") ?  "light" : "dark"
     }
 
-    getCurrentState(): string
+    getCurrentPlayer(): string
     {
-        return this.#gameState
+        return this.#currentPlayer
     }
 
     #getPlayer(color: string)
@@ -119,7 +119,7 @@ export default class Chessboard
         if (!this.isWithinValidRange(oldX, oldY)) return false
 
         const piece: Chesspiece = this.#getPiece(oldX, oldY)
-        const playerColor: string = this.getCurrentState()
+        const playerColor: string = this.getCurrentPlayer()
        
         if (piece === null)                                 return false // ignore empty squares
         if (playerColor !== piece.getColor())               return false // Cant move pieces from other player

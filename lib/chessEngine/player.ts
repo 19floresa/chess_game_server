@@ -17,14 +17,9 @@ export interface playerProp {
 
 export class Player 
 {
-    #playerPieces: playerProp = null
+    #playerPieces: playerProp
 
     constructor(color: string)
-    {
-        this.#setupPlayer(color)
-    }
-
-    #setupPlayer(color: string): void
     {
         const row1 = (color === "dark" ) ? 0 : 7;
         const row2 = (color === "dark" ) ? 1 : 6;
@@ -51,7 +46,7 @@ export class Player
         return [ king, ...queen, ...bishop, ...knight, ...rook, ...pawn]
     }
 
-    findPiece(xPos: number, yPos: number): Chesspiece
+    findPiece(xPos: number, yPos: number): Chesspiece | null
     {
         const pieces: Chesspiece[]  = this.getAllPieces()
         for (const piece of pieces)
@@ -62,7 +57,6 @@ export class Player
                 return piece
             }
         }
-
         return null
     }
 
@@ -101,7 +95,7 @@ export class Player
 
     addPiece(newPiece: Chesspiece): void
     {
-        const [ targetName, targetColor ] = newPiece.getName().split("_")
+        const [ targetName, _ ]: string[] = newPiece.getName().split("_")
         switch(targetName)
         {
             case "queen":
