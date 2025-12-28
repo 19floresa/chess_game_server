@@ -94,7 +94,7 @@ export class Player
         return false
     }
 
-    addPiece(newPiece: Chesspiece): void
+    addPiece(newPiece: Queen & Bishop & Pawn & Knight & Rook & King): void
     {
         const [ targetName, _ ]: string[] = newPiece.getName().split("_")
         switch(targetName)
