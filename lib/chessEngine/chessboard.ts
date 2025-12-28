@@ -5,13 +5,13 @@ import { playerProp, Player } from "./player.ts"
 import { Queen } from "./queen.ts"
 import { Rook } from "./rook.ts"
 
-export class Chessboard 
+export default class Chessboard 
 {
     readonly maxLength: number = 8
     readonly maxWidth: number = 8
 
-    #player1: Player = null // black player (dark)
-    #player2: Player = null // white player (light)
+    #player1: Player //= null // black player (dark)
+    #player2: Player //= null // white player (light)
 
     #gameState: string
     #gameBoard: Chesspiece[][]
