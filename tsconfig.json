@@ -2,6 +2,7 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "extends": "@tsconfig/node-lts/tsconfig.json",
   "compilerOptions": {
+    "lib": [ "dom" ],
       "allowImportingTsExtensions": true,
       "esModuleInterop": true,
       "noEmit": true,
