@@ -168,6 +168,12 @@ export class GameStateMachine
         return false
     }
 
+    findGameEngine(gameId: number): Chessboard | null
+    {
+        const game: gameInfo | null = this.#recent.find(gameId)
+        return (game === null) ? null : game.gameEngine
+    }
+
     setPlayerConnection(gameId: number, userId: number, value: boolean): boolean
     {
         const game: gameInfo | null = this.#recent.find(gameId)
