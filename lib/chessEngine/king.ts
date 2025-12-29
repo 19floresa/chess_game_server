@@ -7,7 +7,7 @@ export default class King extends Chesspiece
         return (xDif <= 1) && (yDif <= 1)
     }
 
-    checkJumpedSquares(gameBoard: Chesspiece[][], newX: number, newY: number): boolean
+    checkJumpedSquares(gameBoard: Array<Array<Chesspiece|null>>, newX: number, newY: number): boolean
     {
         return true // skip
     }

@@ -1,10 +1,10 @@
-import { type playerPieces, Player } from "./player.ts"
+import Chesspiece from "./chesspiece.ts"
+import Player from "./player.ts"
+import color from "../types/color.ts"
 import Queen from "./queen.ts"
 import Rook from "./rook.ts"
 import Knight from "./knight.ts"
 import Bishop from "./bishop.ts"
-import Chesspiece from "./chesspiece.ts"
-import color from "../types/color.ts"
 
 export default class Chessboard 
 {
@@ -15,7 +15,7 @@ export default class Chessboard
     #player2: Player  // white player (light)
 
     #currentPlayer: color
-    #gameBoard: Chesspiece[][]
+    #gameBoard: Array<Array<Chesspiece| null>>
 
     constructor()
     {
@@ -30,13 +30,13 @@ export default class Chessboard
         for (const piece of player1.getAllPieces())
         {
             const [ x, y ] = piece.getCurrentPosition()
-            gameBoard[y][x] = piece
+            this.#setPiece(piece, x, y)
         }
 
         for (const piece of player2.getAllPieces())
         {
             const [ x, y ] = piece.getCurrentPosition()
-            gameBoard[y][x] = piece
+            this.#setPiece(piece, x, y)
         }
 
         this.#gameBoard = gameBoard
@@ -52,8 +52,8 @@ export default class Chessboard
         if (!this.isWithinValidRange(newX, newY)) return false
         if (!this.isWithinValidRange(oldX, oldY)) return false
 
-        const piece: Chesspiece = this.#getPiece(oldX, oldY)
-        const playerColor: string = this.getCurrentPlayer()
+        const piece: Chesspiece | null = this.#getPiece(oldX, oldY)
+        const playerColor: color = this.getCurrentPlayer()
        
         if (piece === null)                                 return false // ignore empty squares
         if (playerColor !== piece.getColor())               return false // Cant move pieces from other player
@@ -61,16 +61,16 @@ export default class Chessboard
         if (!this.#checkNewSquare(playerColor, newX, newY)) return false // Dont move to square of our pieces
         if (!this.#checkSquaresJumped(piece, newX, newY))   return false // Check all squares jumped over are empty
 
-        const oldPiece: Chesspiece = this.#getPiece(newX, newY)
+        const oldPiece: Chesspiece | null = this.#getPiece(newX, newY)
         if (oldPiece !== null) // remove piece from player
         {
-            const otherPlayerColor: string = (playerColor === "dark") ?  "light" : "dark"
+            const otherPlayerColor: color = (playerColor === color.dark) ?  color.light : color.dark
             const otherPlayer: Player =  this.#getPlayer(otherPlayerColor)
             otherPlayer.removePiece(oldPiece)
             console.log(`Removed: ${oldPiece.getName()}`)
         }
 
-        this.#setPiece(piece, newX, newY)
+        this.#movePiece(piece, newX, newY)
         this.changePlayer()
 
         const [ targetName, targetColor] = piece.getName().split("_")
@@ -93,18 +93,20 @@ export default class Chessboard
 
     #promote(x: number, y: number)
     {
-        const piece: Chesspiece = this.#getPiece(x, y)
-        const color: string = piece.getColor()
-        let val: string = ""
+        const piece: Chesspiece = this.#getPiece(x, y)! // NOTE: Piece will always be a pawn
+        const color: color = piece.getColor()
+        let val: string | null= ""
         let n: number = -1
         while(true)
         {
             val = prompt("Promote Pawn: Queen (1), Rook (2), Bishop (3), Knight (4):")
+            if (val === null) continue
             n = Number(val)
+            if (isNaN(n)) continue
             if ((n > 0) && (n < 5)) break
         }
 
-        let newPiece: Chesspiece = null
+        let newPiece: Chesspiece
         switch(n)
         {
             case 1:
@@ -126,7 +128,7 @@ export default class Chessboard
         const player: Player = this.#getPlayer(color)
         player.removePiece(piece)
         player.addPiece(newPiece)
-        this.#gameBoard[y][x] = newPiece
+        this.#setPiece(newPiece, x, y)
     }
     
     isWithinValidRange(newX: number, newY: number): boolean 
@@ -138,31 +140,22 @@ export default class Chessboard
         return (xValid && yValid)
     }
 
-    getBoardDimensions(): [ number, number]
-    {
-        return [ this.maxWidth, this.maxLength ]
-    }
-
-    getPieceName(xPos: number, yPos: number): string
-    {
-        if (!this.isWithinValidRange(xPos, yPos)) return ""
-        const piece: Chesspiece = this.#gameBoard[yPos][xPos]
-        if (piece === null) return ""
-        return piece.getName()
-    }
-
-    getPieceColor(xPos: number, yPos: number): string
-    {
-        if (!this.isWithinValidRange(xPos, yPos)) return ""
-        const piece: Chesspiece = this.#gameBoard[yPos][xPos]
-        if (piece === null) return ""
-        return piece.getColor()
-    }
-
     changePlayer()
     {
         const c: color = this.getCurrentPlayer()
-        this.#currentPlayer = (c === color.dark) ?  color.light : color.dark
+        this.#currentPlayer = (c === color.dark) ? color.light : color.dark
+    }
+
+    #checkNewSquare(playerColor: color, newX: number, newY: number)
+    {
+        const piece: Chesspiece | null = this.#getPiece(newX, newY)
+        // TODO: Check that king wont be put in check
+        return ((piece === null) || (piece.getColor() !== playerColor))
+    }
+
+    #checkSquaresJumped(piece: Chesspiece, newX: number, newY: number): boolean
+    {
+        return piece.checkJumpedSquares(this.#gameBoard, newX, newY)
     }
 
     getCurrentPlayer(): color
@@ -172,31 +165,52 @@ export default class Chessboard
 
     #getPlayer(c: color): Player
     {
-        return (c === color.dark) ? this.#player1 : this.#player2
+        return (c === color.dark) ? this.#player1 : this.#player2 // TODO Player 1 should be light
     }
 
-    #getPiece(xPos: number, yPos: number): Chesspiece
+    #getPiece(xPos: number, yPos: number): Chesspiece | null
     {
-        return (this.#gameBoard[yPos][xPos]) as Chesspiece
+        const row: Array<Chesspiece|null> = this.#gameBoard[yPos] as Array<Chesspiece|null>
+        const piece: Chesspiece | null | undefined = row[xPos]!
+        return piece === undefined ? null : piece
     }
 
-    #setPiece(piece: Chesspiece, newX: number, newY: number): void
+    getBoardDimensions(): [ number, number]
+    {
+        return [ this.maxWidth, this.maxLength ]
+    }
+
+    getPieceName(xPos: number, yPos: number): string
+    {
+        if (!this.isWithinValidRange(xPos, yPos)) return ""
+        const piece: Chesspiece | null = this.#getPiece(xPos, yPos)
+        if (piece === null) return ""
+        return piece.getName()
+    }
+
+    getPieceColor(xPos: number, yPos: number): color | null
+    {
+        if (!this.isWithinValidRange(xPos, yPos)) return null
+        const piece: Chesspiece | null = this.#getPiece(xPos, yPos)
+        if (piece === null) return null
+        return piece.getColor()
+    }
+
+    #setPiece(piece: Chesspiece | null, newX: number, newY: number): void
+    {
+        if (piece !== null)
+        {
+            piece.setNewPosition(newX, newY)
+        }
+
+        const row: Array<Chesspiece|null> = this.#gameBoard[newY] as Array<Chesspiece>
+        row[newX] = piece
+    }
+
+    #movePiece(piece: Chesspiece, newX: number, newY: number): void
     {
         const [ oldX, oldY ] = piece.getCurrentPosition()
-        piece.setNewPosition(newX, newY)
-        this.#gameBoard[oldY][oldX] = null
-        this.#gameBoard[newY][newX] = piece
-    }
-
-    #checkNewSquare(playerColor: string, newX: number, newY: number)
-    {
-        const piece: Chesspiece = this.#getPiece(newX, newY)
-        // TODO: Check that king wont be put in check
-        return ((piece === null) || (piece.getColor() !== playerColor))
-    }
-
-    #checkSquaresJumped(piece: Chesspiece, newX: number, newY: number): boolean
-    {
-        return piece.checkJumpedSquares(this.#gameBoard, newX, newY)
+        this.#setPiece(piece, newX, newY)
+        this.#setPiece(null, oldX, oldY)
     }
 }

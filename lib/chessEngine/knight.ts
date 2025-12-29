@@ -10,7 +10,7 @@ export default class Knight extends Chesspiece
         return (isMovementVerticalL || isMovementHorizontalL)
     }
     
-    checkJumpedSquares(gameBoard: Chesspiece[][], newX: number, newY: number): boolean
+    checkJumpedSquares(gameBoard: Array<Array<Chesspiece|null>>, newX: number, newY: number): boolean
     {
         return true // skip
     }

@@ -10,19 +10,19 @@ export default class Rook extends Chesspiece
         return ( isMovingVertically ||isMovingHorizontally )
     }
     
-    checkJumpedSquares(gameBoard: Chesspiece[][], newX: number, newY: number): boolean
+    checkJumpedSquares(gameBoard: Array<Array<Chesspiece|null>>, newX: number, newY: number): boolean
     {
-        const board: Chesspiece[][] = structuredClone(gameBoard)
-        const [ xDif, yDif ] = this.calcPosDiff(newX, newY)
         const isNeg = (val: number) => val >= 0 ? 1 : -1 
-        const dif = ( xDif === 0 ) ? [ 0, isNeg(yDif) ] : [ isNeg(xDif), 0 ]
+
+        const board: Array<Array<Chesspiece|null>> = structuredClone(gameBoard)
+        const [ xDif, yDif ] = this.calcPosDiff(newX, newY)
+        const [ hDif, vDif ] = ( xDif === 0 ) ? [ 0, isNeg(yDif) ] : [ isNeg(xDif), 0 ]
         const totalDif: number = Math.max(...[ Math.abs(xDif), Math.abs(yDif) ])
         for (let i = 1; i < totalDif; i++)
         {
-            const [ hDif, vDif ] = dif
             const newPosY: number = newY + (i * vDif)
             const newPosX: number = newX + (i * hDif)
-            const piece: Chesspiece = board[newPosY][newPosX]
+            const piece: Chesspiece | null = this.getBoardPiece(board, newPosX, newPosY)
             if (piece !== null) return false
         }
         return true

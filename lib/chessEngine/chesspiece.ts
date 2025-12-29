@@ -105,6 +105,14 @@ export default abstract class Chesspiece {
         return [ this.#xPos, this.#yPos ]
     }
 
+    getBoardPiece(board: Array<Array<Chesspiece|null>>, x: number, y: number): Chesspiece | null
+    {
+        // NOTE: Will always be within board but typescript complains :(
+        const row: Array<Chesspiece|null> = board[y] as Array<Chesspiece|null>
+        const piece: Chesspiece | null = row[x]!
+        return piece
+    }
+
     #setName(): void
     {
         const c: string = color[this.getColor()]
@@ -123,5 +131,5 @@ export default abstract class Chesspiece {
     }
 
     abstract isPositionValid(newX: number, newY: number): boolean
-    abstract checkJumpedSquares(gameBoard: Chesspiece[][], newX: number, newY: number): boolean
+    abstract checkJumpedSquares(gameBoard: Array<Array<Chesspiece|null>>, newX: number, newY: number): boolean
 }

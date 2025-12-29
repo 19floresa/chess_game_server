@@ -7,35 +7,29 @@ import Rook from "./rook.ts"
 import Bishop from "./bishop.ts"
 import color from "../types/color.ts"
 
-export interface playerPieces {
-    king: King, 
-    queen: Queen[], 
-    bishop: Bishop[], 
-    pawn: Pawn[], 
-    knight: Knight[],
-    rook: Rook[]
-}
-
-export class Player 
+export default class Player 
 {
-    #playerPieces: playerPieces
+    #playerPieces: Chesspiece[]
 
     constructor(c: color)
     {
         const row1 = (c === color.dark ) ? 0 : 7;
         const row2 = (c === color.dark ) ? 1 : 6;
-        const data: playerPieces = {
-            king: new King(4, row1, c),
-            queen: [ new Queen(3, row1, c) ],
-            bishop: [ new Bishop(2, row1, c), new Bishop(5, row1, c) ],
-            pawn: [],
-            knight: [ new Knight(1, row1, c), new Knight( 6, row1, c) ],
-            rook: [ new Rook(0, row1, c), new Rook(7, row1, c) ]
-        }
+        const data: Chesspiece[] = 
+        [
+            new King(4, row1, c),
+            new Queen(3, row1, c),
+            new Bishop(2, row1, c), 
+            new Bishop(5, row1, c),
+            new Knight(1, row1, c), 
+            new Knight( 6, row1, c),
+            new Rook(0, row1, c), 
+            new Rook(7, row1, c),
+        ]
 
         for (let i = 0; i < 8; i++)
         {
-            data.pawn.push(new Pawn(i, row2, c))
+            data.push(new Pawn(i, row2, c))
         }
 
         this.#playerPieces = data
@@ -43,8 +37,7 @@ export class Player
 
     getAllPieces(): Chesspiece[]
     {
-        const { king, queen, bishop, pawn, knight, rook } = this.#playerPieces
-        return [ king, ...queen, ...bishop, ...knight, ...rook, ...pawn]
+        return this.#playerPieces
     }
 
     findPiece(xPos: number, yPos: number): Chesspiece | null
@@ -63,7 +56,7 @@ export class Player
 
     removePiece(piece: Chesspiece): boolean
     {
-        const [ targetName, targetColor ] = piece.getName().split("_")
+        const [ targetName, _ ] = piece.getName().split("_")
         const [ xPos, yPos ] = piece.getCurrentPosition()
         const find = (elem: Chesspiece) => 
         {
@@ -78,11 +71,11 @@ export class Player
             case "pawn":
             case "knight":
             case "rook":
-                const pieces: Chesspiece[] = this.#playerPieces[targetName]
+                const pieces: Chesspiece[] = this.getAllPieces()
                 const idx: number = pieces.findIndex(find)
                 if (idx !== -1)
                 {
-                    this.#playerPieces[targetName].splice(idx, 1)
+                    this.#playerPieces.splice(idx, 1)
                     return true
                 }
                 break
@@ -90,11 +83,10 @@ export class Player
                 //throw Error(`Cannot remove this piece: ${name}`)
                 break
         }
-
         return false
     }
 
-    addPiece(newPiece: Queen & Bishop & Pawn & Knight & Rook & King): void
+    addPiece(newPiece: Chesspiece ): void
     {
         const [ targetName, _ ]: string[] = newPiece.getName().split("_")
         switch(targetName)
@@ -104,7 +96,7 @@ export class Player
             case "pawn":
             case "knight":
             case "rook":
-                this.#playerPieces[targetName].push(newPiece)
+                this.#playerPieces.push(newPiece)
                 break
             default:
                 throw Error(`Cannot remove this piece: ${targetName}`)

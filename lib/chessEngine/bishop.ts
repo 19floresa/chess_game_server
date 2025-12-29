@@ -8,9 +8,9 @@ export default class Bishop extends Chesspiece
         return (xDif === yDif) && (xDif !== 0) && (yDif !== 0)
     }
 
-    checkJumpedSquares(gameBoard: Chesspiece[][], newX: number, newY: number): boolean
+    checkJumpedSquares(gameBoard: Array<Array<Chesspiece|null>>, newX: number, newY: number): boolean
     {
-        const board: Chesspiece[][] = structuredClone(gameBoard)
+        const board: Array<Array<Chesspiece|null>> = structuredClone(gameBoard)
         const [ xDif, yDif ] = this.calcPosDiff(newX, newY)
         const vDif: number = (yDif >= 0) ? 1 : -1
         const hDif: number = (xDif >= 0) ? 1 : -1
@@ -19,7 +19,7 @@ export default class Bishop extends Chesspiece
         {
             const newPosY: number = newY + (i * vDif)
             const newPosX: number = newX + (i * hDif)
-            const piece: Chesspiece = board[newPosY][newPosX]
+            const piece: Chesspiece | null = this.getBoardPiece(board, newPosX, newPosY)
             if (piece !== null) return false
         }
         return true

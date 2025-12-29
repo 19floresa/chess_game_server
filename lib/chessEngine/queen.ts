@@ -44,7 +44,7 @@ export default class Queen extends Chesspiece
         return (isValidMoveRook || isValidMoveBishop)
     }
     
-    checkJumpedSquares(gameBoard: Chesspiece[][], newX: number, newY: number): boolean
+    checkJumpedSquares(gameBoard: Array<Array<Chesspiece|null>>, newX: number, newY: number): boolean
     {
         const [ xDif, yDif ] = this.calcPosDiff(newX, newY)
         if ((xDif === 0) || (yDif === 0))

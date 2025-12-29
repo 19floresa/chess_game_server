@@ -1,4 +1,5 @@
 import Chesspiece from "./chesspiece.ts"
+import color from "../types/color.ts"
 
 export default class Pawn extends Chesspiece
 {
@@ -22,10 +23,10 @@ export default class Pawn extends Chesspiece
         }
     }
 
-    checkJumpedSquares(gameBoard: Chesspiece[][], newX: number, newY: number): boolean
+    checkJumpedSquares(gameBoard: Array<Array<Chesspiece|null>>, newX: number, newY: number): boolean
     {
-        const board: Chesspiece[][] = structuredClone(gameBoard)
-        const piece: Chesspiece = gameBoard[newY][newX]
+        const board: Array<Array<Chesspiece|null>> = structuredClone(gameBoard)
+        const piece: Chesspiece | null = this.getBoardPiece(board, newX, newY)
         const [ oldX, oldY ] = this.getCurrentPosition()
         const [ xDif, yDif ] = this.calcPosDiff(newX, newY)
         if ((piece !== null) && (xDif === 0)) return false // stop vertical movement if any piece exists
@@ -34,16 +35,17 @@ export default class Pawn extends Chesspiece
         {
             // Moving over 2 squares
             const dif: number = (yDif === -2) ? 1 : -1
-            if (board[oldY + dif][oldX] !== null) return false
+            const temp: Chesspiece | null = this.getBoardPiece(board, oldX, oldY + dif)
+            if (temp !== null) return false
         }
         else if (this.#captureFlag === true)
         {
             this.#captureFlag = false
 
-            const oldPiece: Chesspiece = gameBoard[newY][newX] // not sure why its not working with board???
+            const oldPiece: Chesspiece | null = this.getBoardPiece(gameBoard, newX, newY) // not sure why its not working with board???
             if (oldPiece === null) return false
-            const oldPieceColor: string = oldPiece.getColor()
-            const color: string = this.getColor()
+            const oldPieceColor: color = oldPiece.getColor()
+            const color: color = this.getColor()
             if (oldPieceColor === color) return false
         }
         
