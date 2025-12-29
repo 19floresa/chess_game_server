@@ -5,6 +5,7 @@ import type { ServerToClientEvents, ClientToServerEvents,
               InterServerEvents, SocketData } from "../lib/types/socket.ts"
 import { games } from "./models/gameStateMachine.ts"
 import state from "../lib/types/state.ts"
+import type Chessboard from "../lib/chessEngine/chessboard.ts"
 
 // TODO: Check that a player does not start another game
 // TODO: Cleanup stale games
@@ -44,27 +45,36 @@ io.on("connection", (socket: Socket) =>
         }
     })
 
-    socket.on("move", ({ x, y, xNew, yNew }, callback) => 
+    socket.on("move", ({ x, y, newX, newY }, callback) => 
     { 
         const rooms: string[] =  [...socket.rooms]
         const room: string = rooms[1] as string // TODO: Check room number, if multiple exist
         const gameId: number = parseInt(room.slice(5))
-        if (isNaN(gameId))
-        {
-            callback({ status: "bad", message: "Invalid room number"})
-        }
-        else
+        if (isNaN(gameId) === false)
         {
             const currentState: boolean = games.isGameRunning(gameId)
             if (currentState === true)
             {
-                console.log(`moved: (${x}, ${y}) to (${xNew}, ${yNew})`)
-                callback({ status: "ok", message: `moved: (${x}, ${y}) to (${xNew}, ${yNew}).`})
+                const gameEngine: Chessboard | null = games.findGameEngine(gameId)
+                if (gameEngine !== null)
+                {
+                    console.log(`moved: (${x}, ${y}) to (${newX}, ${newY})`)
+                    const isMoveValid: boolean = gameEngine.move({ oldX: x, oldY: y, newX, newY })
+                    callback({ status: "ok", message: `moved: (${x}, ${y}) to (${newX}, ${newY}).`, isMoveValid })
+                }
+                else
+                {
+                    callback({ status: "bad", message: "Game was not found."})
+                }
             }
             else 
             {
                 callback({ status: "bad", message: "Game state: Game is not fully setup."})
             }
+        }
+        else
+        {
+            callback({ status: "bad", message: "Invalid room number"})
         }
     })
 

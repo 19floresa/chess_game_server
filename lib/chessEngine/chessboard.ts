@@ -67,7 +67,6 @@ export default class Chessboard
             const otherPlayerColor: color = (playerColor === color.dark) ?  color.light : color.dark
             const otherPlayer: Player =  this.#getPlayer(otherPlayerColor)
             otherPlayer.removePiece(oldPiece)
-            console.log(`Removed: ${oldPiece.getName()}`)
         }
 
         this.#movePiece(piece, newX, newY)
@@ -91,7 +90,7 @@ export default class Chessboard
         return true
     }
 
-    #promote(x: number, y: number)
+    #promote(x: number, y: number) // TODO: Move to frontend
     {
         const piece: Chesspiece = this.#getPiece(x, y)! // NOTE: Piece will always be a pawn
         const color: color = piece.getColor()

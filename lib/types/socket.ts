@@ -33,11 +33,11 @@ export interface ClientToServerEvents {
      * This function validates if a piece can move from the old to the new position.
      * @param param0.x  Old horizontal position
      * @param param0.y  Old vertical position
-     * @param param0.xNew  New horizontal position
-     * @param param0.yNew  New vertical position
+     * @param param0.newX  New horizontal position
+     * @param param0.newY  New vertical position
      * @param callback  Callback function
      */
-    move: ({ x, y, xNew, yNew }: { x: number, y: number, xNew: number, yNew: number }, callback: any) => void
+    move: ({ x, y, newX, newY }: { x: number, y: number, newX: number, newY: number }, callback: any) => void
 }
 
 export interface InterServerEvents {
