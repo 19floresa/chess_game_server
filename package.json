@@ -23,6 +23,7 @@
     },
     "devDependencies": {
         "@tsconfig/node-lts": "latest",
+        "@types/cookie-parser": "^1.4.10",
         "tsx": "^4.20.6"
     }
 }
