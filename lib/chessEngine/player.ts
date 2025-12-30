@@ -40,6 +40,21 @@ export default class Player
         return this.#playerPieces
     }
 
+    getKing(): Chesspiece
+    {
+        const pieces: Chesspiece[] = this.getAllPieces()
+        for (const piece of pieces)
+        {
+            const [ targetName, _ ]: string[] = piece.getName().split("_")
+            if (targetName === "king")
+            {
+                return piece
+            }
+        }
+
+        throw new Error("King piece was not found.")
+    }
+
     findPiece(xPos: number, yPos: number): Chesspiece | null
     {
         const pieces: Chesspiece[]  = this.getAllPieces()

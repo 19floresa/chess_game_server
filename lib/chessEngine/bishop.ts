@@ -24,5 +24,4 @@ export default class Bishop extends Chesspiece
         }
         return true
     }
-
 }

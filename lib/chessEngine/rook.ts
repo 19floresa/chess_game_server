@@ -28,5 +28,5 @@ export default class Rook extends Chesspiece
         return true
     }
 
-    // TODO: Implement castling
+    // TODO: Implement castling, queen should not be to access this
 }
