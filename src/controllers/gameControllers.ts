@@ -56,6 +56,6 @@ export default function gameSearch(req: Request, res: Response): void
     }
     catch (e)
     {
-      res.status(400).json({ message: (e as Error).message })
+        res.status(400).json({ message: (e as Error).message })
     }
 }

@@ -27,6 +27,7 @@ export default class Chessboard
             gameBoard[i] = new Array(this.maxWidth).fill(null)
         }
 
+        this.#gameBoard = gameBoard
         for (const piece of player1.getAllPieces())
         {
             const [ x, y ] = piece.getCurrentPosition()
