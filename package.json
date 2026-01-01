@@ -3,6 +3,7 @@
         "build": "tsc",
         "start": "node dist/server.js",
         "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx' src/server.ts ",
+        "test": "vitest --watch",
         "lint": "eslint 'src/**/*.ts'"
     },
     "type": "module",
@@ -18,12 +19,13 @@
         "npm": "^11.6.4",
         "prettier": "^3.6.2",
         "socket.io": "^4.8.2",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.9.3"
+        "ts-node": "^10.9.2"
     },
     "devDependencies": {
         "@tsconfig/node-lts": "latest",
         "@types/cookie-parser": "^1.4.10",
-        "tsx": "^4.20.6"
+        "tsx": "^4.20.6",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.16"
     }
 }

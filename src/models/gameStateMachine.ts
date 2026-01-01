@@ -7,7 +7,6 @@ import GameActive from "./GameActive.ts"
 import GameRecent from "./GameRecent.ts"
 import Chessboard from "../../lib/chessEngine/chessboard.ts"
 
-
 export class GameStateMachine
 {
     #search: GameSearching
@@ -172,6 +171,20 @@ export class GameStateMachine
     {
         const game: gameInfo | null = this.#recent.find(gameId)
         return (game === null) ? null : game.gameEngine
+    }
+
+    findPlayerColor(userId: number, gameId: number): string
+    {
+        const game: gameInfo | null = this.#recent.find(gameId)
+        if (game !== null)
+        {
+            const [ idP1, idP2 ] = this.findPlayersId(gameId)
+            if (userId === idP1)      return "light"
+            else if (userId === idP2) return "dark"
+            else                      return ""
+
+        }
+        return ""
     }
 
     setPlayerConnection(gameId: number, userId: number, value: boolean): boolean

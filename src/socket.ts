@@ -31,13 +31,16 @@ io.on("connection", (socket: Socket) =>
         {
             const room: string = `Room: ${gameId}`
             socket.join(room)
+
+            const color: string = games.findPlayerColor(userId, gameId)
+            callback({ status: "ok", message: "Connection to the server was successful.", color })
+
             const isP1P2Connected: boolean = games.findPlayerConnection(gameId)
             if (isP1P2Connected === true)
             {
                 games.changeState({ newState: state.running, userId, gameId })
                 io.to(room).emit("startGame")
             }
-            callback({ status: "ok", message: "Connection to the server was successful." })
         }
         else
         {
