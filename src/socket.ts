@@ -6,6 +6,7 @@ import type { ServerToClientEvents, ClientToServerEvents,
 import { games } from "./models/gameStateMachine.ts"
 import state from "../lib/types/state.ts"
 import type Chessboard from "../lib/chessEngine/chessboard.ts"
+import type gameInfo from "../lib/types/gameInfo.ts"
 
 // TODO: Check that a player does not start another game
 // TODO: Cleanup stale games
@@ -26,25 +27,41 @@ io.on("connection", (socket: Socket) =>
     socket.on("connectPlayer", ({ userId, gameId }, callback ) =>
     {
         console.log("Player is connected.")
-        const isConnected: boolean = games.setPlayerConnection(gameId, userId, true)
-        if (isConnected === true)
+        const game: gameInfo | null = games.findPlayerGame(userId)
+        if (game !== null) // Resume game already started
         {
+            console.log("Reconnecting to a game")
+            const gameId: number = game.gameId
+            const color: string = games.findPlayerColor(userId, gameId)
+
             const room: string = `Room: ${gameId}`
             socket.join(room)
 
-            const color: string = games.findPlayerColor(userId, gameId)
             callback({ status: "ok", message: "Connection to the server was successful.", color })
-
-            const isP1P2Connected: boolean = games.findPlayerConnection(gameId)
-            if (isP1P2Connected === true)
-            {
-                games.changeState({ newState: state.running, userId, gameId })
-                io.to(room).emit("startGame")
-            }
+            io.to(room).emit("startGame") // TODO cannot do this, will need
         }
-        else
+        else // Start game not running yet
         {
-            callback({ status: "bad", message: "Could not connect to the server." })
+            const isConnected: boolean = games.setPlayerConnection(gameId, userId, true)
+            if (isConnected === true)
+            {
+                const room: string = `Room: ${gameId}`
+                socket.join(room)
+
+                const color: string = games.findPlayerColor(userId, gameId)
+                callback({ status: "ok", message: "Connection to the server was successful.", color })
+
+                const isP1P2Connected: boolean = games.findPlayerConnection(gameId)
+                if (isP1P2Connected === true)
+                {
+                    games.changeState({ newState: state.running, userId, gameId })
+                    io.to(room).emit("startGame")
+                }
+            }
+            else
+            {
+                callback({ status: "bad", message: "Could not connect to the server." })
+            }
         }
     })
 
