@@ -1,10 +1,17 @@
 import express from "express"
 import cookieParser from "cookie-parser"
-import { errorHandler } from "./middleware/errorHandler.ts"
+import cors from "cors"
 
 import gameRoutes from "./routes/gameRoutes.ts"
+import { errorHandler } from "./middleware/errorHandler.ts"
 
 const app = express()
+
+app.use(cors({
+    origin: 'http://localhost:3000', // use your actual domain name (or localhost), using * is not recommended
+    methods: ['GET', 'POST',/* 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'*/],
+    allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
+}))
 
 app.use(express.json())
 app.use(cookieParser())
