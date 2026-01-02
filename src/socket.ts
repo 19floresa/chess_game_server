@@ -48,7 +48,7 @@ io.on("connection", (socket: Socket) =>
         }
     })
 
-    socket.on("move", ({ x, y, newX, newY }, callback) => 
+    socket.on("move", ({ x, y, x2, y2 }, callback) => 
     { 
         const rooms: string[] =  [...socket.rooms]
         const room: string = rooms[1] as string // TODO: Check room number, if multiple exist
@@ -61,9 +61,10 @@ io.on("connection", (socket: Socket) =>
                 const gameEngine: Chessboard | null = games.findGameEngine(gameId)
                 if (gameEngine !== null)
                 {
-                    console.log(`moved: (${x}, ${y}) to (${newX}, ${newY})`)
-                    const isMoveValid: boolean = gameEngine.move({ oldX: x, oldY: y, newX, newY })
-                    callback({ status: "ok", message: `moved: (${x}, ${y}) to (${newX}, ${newY}).`, isMoveValid })
+                    console.log(`moved: (${x}, ${y}) to (${x2}, ${y2})`)
+                    const isMoveValid: boolean = gameEngine.move({ oldX: x, oldY: y, newX: x2, newY: y2 })
+                    callback({ status: "ok", message: `moved: (${x}, ${y}) to (${x2}, ${y2}).`, isMoveValid })
+                    socket.to(room).emit("validMoveOpponent", { x, y, x2, y2 })
                 }
                 else
                 {

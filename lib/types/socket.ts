@@ -10,6 +10,7 @@ export interface ServerToClientEvents {
    */
   endGame: () => void
   connectPlayer: () => void
+  validMoveOpponent: ({ x, y, x2, y2 }: { x: number, y: number, x2: number, y2: number }) => void
 }
 
 export interface ClientToServerEvents {
@@ -33,11 +34,11 @@ export interface ClientToServerEvents {
      * This function validates if a piece can move from the old to the new position.
      * @param param0.x  Old horizontal position
      * @param param0.y  Old vertical position
-     * @param param0.newX  New horizontal position
-     * @param param0.newY  New vertical position
+     * @param param0.x2  New horizontal position
+     * @param param0.y2  New vertical position
      * @param callback  Callback function
      */
-    move: ({ x, y, newX, newY }: { x: number, y: number, newX: number, newY: number }, callback: any) => void
+    move: ({ x, y, x2, y2 }: { x: number, y: number, x2: number, y2: number }, callback: any) => void
 }
 
 export interface InterServerEvents {
