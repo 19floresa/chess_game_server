@@ -5,6 +5,7 @@ import type gameInfo from "../../lib/types/gameInfo.ts"
 import GameSearching from "./GameSearching.ts"
 import GameActive from "./GameActive.ts"
 import GameRecent from "./GameRecent.ts"
+import GameCurrentPlayers from "./GamePlayers.ts"
 import Chessboard from "../../lib/chessEngine/chessboard.ts"
 
 export class GameStateMachine
@@ -12,12 +13,14 @@ export class GameStateMachine
     #search: GameSearching
     #active: GameActive
     #recent: GameRecent
+    #currentPlayers: GameCurrentPlayers
 
     constructor()
     {
         this.#search = new GameSearching()
         this.#active = new GameActive()
         this.#recent = new GameRecent()
+        this.#currentPlayers = new GameCurrentPlayers()
     }
 
     changeState({ newState, userId, gameId }: { newState: state, userId: number, gameId: number }): boolean
@@ -42,6 +45,7 @@ export class GameStateMachine
         const gameNew: gameInfo = this.#gameNew(idPlayer1)
         this.#recent.add(gameNew)
         this.#search.add(gameNew)
+        this.#currentPlayers.add(idPlayer1, gameNew)
         return true
     }
 
@@ -50,6 +54,7 @@ export class GameStateMachine
         const game: gameInfo | null = this.#search.find(gameId)
         if (game !== null)
         {
+            this.#currentPlayers.add(player2Id, game)
             game.status = state.ready
             game.idP2 = player2Id
             return true
@@ -74,6 +79,7 @@ export class GameStateMachine
         const game: gameInfo | null = this.#active.remove(gameId)
         if (game !== null)
         {
+            this.#currentPlayers.removeAll(game)
             game.status = state.complete
             game.timeCompleted = generateTimeUTC()
             return true
@@ -185,6 +191,11 @@ export class GameStateMachine
 
         }
         return ""
+    }
+
+    findPlayerGame(playerId: number): gameInfo | null
+    {
+        return this.#currentPlayers.find(playerId)
     }
 
     setPlayerConnection(gameId: number, userId: number, value: boolean): boolean
