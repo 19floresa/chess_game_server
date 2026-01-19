@@ -1,10 +1,5 @@
-export function generateTimeUTC()
+export function generateTimeUTC(): string
 {
-    return Date.now()
-}
-
-export function timeToString(timestamp: number): string
-{
-    const date = new Date(timestamp)
-    return date.toString()
+    const date = new Date()
+    return date.toUTCString()
 }
