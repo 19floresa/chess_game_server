@@ -1,11 +1,20 @@
 import type { Request, Response } from "express"
+import postFetch from "../../lib/api/postFetch.ts"
 
-export default function gameSearch(req: Request, res: Response): void
+export default async function gameSearch(req: Request, res: Response): Promise<void>
 {
     try
     {
-        const { id }: { id: string } = req.body
-        res.send({})
+        const { playerId, gameId } = req.body
+        const [ status, body ] = await postFetch({ playerId, gameId }, "replay")
+        if (status === 200)
+        {
+            res.send(body)
+        }
+        else
+        {
+            throw new Error("Replays could not be retrieved.")
+        }
     }
     catch (e)
     {

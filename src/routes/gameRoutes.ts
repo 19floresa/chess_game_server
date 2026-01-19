@@ -1,6 +1,6 @@
 import { Router } from "express"
 import gameSearch from "../controllers/gameController.ts"
-import replayGame from "../controllers/gameController.ts"
+import replayGame from "../controllers/replayController.ts"
 
 const router = Router()
 
