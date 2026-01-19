@@ -4,7 +4,7 @@ import type gameInfo from "../../lib/types/gameInfo.ts"
 import { getPort } from "../../lib/port/port.ts"
 import { games } from "../models/gameStateMachine.ts"
 
-export default function gameSearch(req: Request, res: Response): void
+export default async function gameSearch(req: Request, res: Response): void
 {
     try
     {
@@ -21,7 +21,7 @@ export default function gameSearch(req: Request, res: Response): void
             case -1: // Create a new game
             {
                 respMsg.message = "New game was created! Waiting for player 2."
-                const result: boolean = games.changeState({ newState: state.initialize, userId: playerId, gameId: -1 })
+                const result: boolean = await games.changeState({ newState: state.initialize, userId: playerId, gameId: -1 })
                 if (result === false)
                 {
                     // Should never be reached
@@ -44,7 +44,7 @@ export default function gameSearch(req: Request, res: Response): void
                 }
                 // Add player 2 to a game already created
                 respMsg.message = "Game was found! Connecting to the match."
-                const result: boolean = games.changeState({ newState: state.ready, userId: playerId, gameId })
+                const result: boolean = await games.changeState({ newState: state.ready, userId: playerId, gameId })
                 if (result === false)
                 {
                     throw new Error("Game was not found.")

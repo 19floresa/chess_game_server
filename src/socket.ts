@@ -24,7 +24,7 @@ io.on("connection", (socket: Socket) =>
 {
     console.log("connected!")
 
-    socket.on("connectPlayer", ({ userId, gameId }, callback ) =>
+    socket.on("connectPlayer", async ({ userId, gameId }, callback ) =>
     {
         console.log("Player is connected.")
         const game: gameInfo | null = games.findPlayerGame(userId)
@@ -54,7 +54,7 @@ io.on("connection", (socket: Socket) =>
                 const isP1P2Connected: boolean = games.findPlayerConnection(gameId)
                 if (isP1P2Connected === true)
                 {
-                    games.changeState({ newState: state.running, userId, gameId })
+                    await games.changeState({ newState: state.running, userId, gameId })
                     io.to(room).emit("startGame")
                 }
             }

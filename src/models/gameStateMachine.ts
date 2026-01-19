@@ -7,6 +7,7 @@ import GameActive from "./GameActive.ts"
 import GameRecent from "./GameRecent.ts"
 import GameCurrentPlayers from "./GamePlayers.ts"
 import Chessboard from "../../lib/chessEngine/chessboard.ts"
+import storeGame from "../../lib/api/storeGame.ts"
 
 export class GameStateMachine
 {
@@ -23,7 +24,7 @@ export class GameStateMachine
         this.#currentPlayers = new GameCurrentPlayers()
     }
 
-    changeState({ newState, userId, gameId }: { newState: state, userId: number, gameId: number }): boolean
+    async changeState({ newState, userId, gameId }: { newState: state, userId: number, gameId: number }): Promise<boolean>
     {
         switch(newState)
         {
@@ -34,7 +35,7 @@ export class GameStateMachine
             case state.running:    // Run game
                 return this.#changeStateRunning(gameId)
             case state.complete:   // End game
-                return this.#changeStateComplete(gameId)
+                return await this.#changeStateComplete(gameId)
             default:
                 throw new Error("State Machine: State not defined.")
         }
@@ -74,7 +75,7 @@ export class GameStateMachine
         return false
     }
 
-    #changeStateComplete(gameId: number): boolean
+    async #changeStateComplete(gameId: number): Promise<boolean>
     {
         const game: gameInfo | null = this.#active.remove(gameId)
         if (game !== null)
@@ -82,6 +83,7 @@ export class GameStateMachine
             this.#currentPlayers.removeAll(game)
             game.status = state.complete
             game.timeCompleted = generateTimeUTC()
+            await storeGame(game)
             return true
         }
         return false
@@ -115,12 +117,13 @@ export class GameStateMachine
         {
             idP1: player1,
             idP2: -1,
+            idWinner: -1,
             connectedP1: false,
             connectedP2: false,
             gameId,
             gameHistory: [],
             timeStarted,
-            timeCompleted: -1,
+            timeCompleted: "",
             lastAccessed: timeStarted,
             status: state.initialize,
             gameEngine: new Chessboard()
