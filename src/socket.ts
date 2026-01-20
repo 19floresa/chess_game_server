@@ -7,6 +7,7 @@ import { games } from "./models/gameStateMachine.ts"
 import state from "../lib/types/state.ts"
 import type Chessboard from "../lib/chessEngine/chessboard.ts"
 import type gameInfo from "../lib/types/gameInfo.ts"
+import color from "../lib/types/color.ts"
 
 // TODO: Check that a player does not start another game
 // TODO: Cleanup stale games
@@ -79,9 +80,25 @@ io.on("connection", (socket: Socket) =>
                 if (gameEngine !== null)
                 {
                     console.log(`moved: (${x}, ${y}) to (${x2}, ${y2})`)
-                    const isMoveValid: boolean = gameEngine.move({ oldX: x, oldY: y, newX: x2, newY: y2 })
-                    callback({ status: "ok", message: `moved: (${x}, ${y}) to (${x2}, ${y2}).`, isMoveValid })
-                    socket.to(room).emit("validMoveOpponent", { x, y, x2, y2 })
+                    const isMoveValid: boolean = gameEngine.move({ oldX: x, oldY: y, newX: x2, newY: y2 }) // TODO: FIx so you only send if valid
+                                                                                                           // TODO: Check if king in check
+                    if (isMoveValid === true)
+                    {
+                        callback({ status: "ok", message: `moved: (${x}, ${y}) to (${x2}, ${y2}).` })
+                        socket.to(room).emit("validMoveOpponent", { x, y, x2, y2 })
+                    }
+                    else // TODO: might wanna check first for winner
+                    {
+                        const playerWinner: color | null = gameEngine.getWinner()
+                        if (playerWinner !== null)
+                        {
+                            games.changeState({ gameId, winnerColor: playerWinner})
+                        }
+                        else
+                        {
+                            callback({ status: "bad", message: "Invalid Position."})
+                        }
+                    }
                 }
                 else
                 {

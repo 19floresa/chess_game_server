@@ -8,6 +8,7 @@ import GameRecent from "./GameRecent.ts"
 import GameCurrentPlayers from "./GamePlayers.ts"
 import Chessboard from "../../lib/chessEngine/chessboard.ts"
 import storeGame from "../../lib/api/storeGame.ts"
+import color from "../../lib/types/color.ts"
 
 export class GameStateMachine
 {
@@ -24,7 +25,7 @@ export class GameStateMachine
         this.#currentPlayers = new GameCurrentPlayers()
     }
 
-    async changeState({ newState, userId, gameId }: { newState: state, userId: number, gameId: number }): Promise<boolean>
+    async changeState({ newState = state.initialize, userId = -1, gameId = -1 , winnerColor = color.light }): Promise<boolean>
     {
         switch(newState)
         {
@@ -35,7 +36,7 @@ export class GameStateMachine
             case state.running:    // Run game
                 return this.#changeStateRunning(gameId)
             case state.complete:   // End game
-                return await this.#changeStateComplete(gameId)
+                return await this.#changeStateComplete(gameId, winnerColor)
             default:
                 throw new Error("State Machine: State not defined.")
         }
@@ -75,7 +76,7 @@ export class GameStateMachine
         return false
     }
 
-    async #changeStateComplete(gameId: number): Promise<boolean>
+    async #changeStateComplete(gameId: number, winnerColor: color): Promise<boolean>
     {
         const game: gameInfo | null = this.#active.remove(gameId)
         if (game !== null)
@@ -83,6 +84,7 @@ export class GameStateMachine
             this.#currentPlayers.removeAll(game)
             game.status = state.complete
             game.timeCompleted = generateTimeUTC()
+            game.idWinner = winnerColor === color.light ? game.idP1 : game.idP2
             await storeGame(game)
             return true
         }
