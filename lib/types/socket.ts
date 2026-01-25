@@ -8,7 +8,7 @@ export interface ServerToClientEvents {
   /**
    * This function tells the client to end the game.
    */
-  endGame: () => void
+  endGame: ({ isWinnerLight }: { isWinnerLight: boolean }) => void
   connectPlayer: () => void
   validMoveOpponent: ({ x, y, x2, y2 }: { x: number, y: number, x2: number, y2: number }) => void
 }

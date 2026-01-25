@@ -80,24 +80,23 @@ io.on("connection", (socket: Socket) =>
                 if (gameEngine !== null)
                 {
                     console.log(`moved: (${x}, ${y}) to (${x2}, ${y2})`)
-                    const isMoveValid: boolean = gameEngine.move({ oldX: x, oldY: y, newX: x2, newY: y2 }) // TODO: FIx so you only send if valid
-                                                                                                           // TODO: Check if king in check
+                    const isMoveValid: boolean = gameEngine.move({ oldX: x, oldY: y, newX: x2, newY: y2 })
                     if (isMoveValid === true)
                     {
                         callback({ status: "ok", message: `moved: (${x}, ${y}) to (${x2}, ${y2}).` })
                         socket.to(room).emit("validMoveOpponent", { x, y, x2, y2 })
-                    }
-                    else // TODO: might wanna check first for winner
-                    {
+
                         const playerWinner: color | null = gameEngine.getWinner()
                         if (playerWinner !== null)
                         {
+                            const isWinnerLight: boolean = playerWinner === color.light
                             games.changeState({ gameId, winnerColor: playerWinner})
+                            io.to(room).emit("endGame", { isWinnerLight })
                         }
-                        else
-                        {
-                            callback({ status: "bad", message: "Invalid Position."})
-                        }
+                    }
+                    else
+                    {
+                        callback({ status: "bad", message: "Invalid Position."})
                     }
                 }
                 else
@@ -107,7 +106,7 @@ io.on("connection", (socket: Socket) =>
             }
             else 
             {
-                callback({ status: "bad", message: "Game state: Game is not fully setup."})
+                callback({ status: "bad", message: "Game state: Game is not running."})
             }
         }
         else
