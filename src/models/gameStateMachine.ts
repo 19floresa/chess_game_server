@@ -178,10 +178,9 @@ export class GameStateMachine
         return false
     }
 
-    findGameEngine(gameId: number): Chessboard | null
+    getGame(gameId: number): gameInfo | null
     {
-        const game: gameInfo | null = this.#recent.find(gameId)
-        return (game === null) ? null : game.gameEngine
+        return this.#recent.find(gameId)
     }
 
     findPlayerColor(userId: number, gameId: number): string

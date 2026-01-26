@@ -29,17 +29,16 @@ io.on("connection", (socket: Socket) =>
     {
         console.log("Player is connected.")
         const game: gameInfo | null = games.findPlayerGame(userId)
-        if (game !== null) // Resume game already started
+        const isReconnecting: boolean = (game !== null) && (games.findPlayerConnection(gameId))
+        if (isReconnecting === true) // Resume game already started
         {
             console.log("Reconnecting to a game")
-            const gameId: number = game.gameId
+            const gameId: number = game!.gameId
             const color: string = games.findPlayerColor(userId, gameId)
-
             const room: string = `Room: ${gameId}`
             socket.join(room)
-
             callback({ status: "ok", message: "Connection to the server was successful.", color })
-            io.to(room).emit("startGame") // TODO cannot do this, will need
+            io.to(room).emit("startGame") // TODO cannot do this, will need to find another way to reconnect
         }
         else // Start game not running yet
         {
@@ -76,21 +75,28 @@ io.on("connection", (socket: Socket) =>
             const currentState: boolean = games.isGameRunning(gameId)
             if (currentState === true)
             {
-                const gameEngine: Chessboard | null = games.findGameEngine(gameId)
+                const game: gameInfo | null = games.getGame(gameId)
+                const gameEngine: Chessboard | null = game !== null ? game.gameEngine : null
                 if (gameEngine !== null)
                 {
                     console.log(`moved: (${x}, ${y}) to (${x2}, ${y2})`)
                     const isMoveValid: boolean = gameEngine.move({ oldX: x, oldY: y, newX: x2, newY: y2 })
                     if (isMoveValid === true)
                     {
+                        // Save game move
+                        game!.gameHistory.push([ x, y, x2, y2])
+
+                        // Response to game move
                         callback({ status: "ok", message: `moved: (${x}, ${y}) to (${x2}, ${y2}).` })
                         socket.to(room).emit("validMoveOpponent", { x, y, x2, y2 })
 
+                        // Save game once a player wins
                         const playerWinner: color | null = gameEngine.getWinner()
                         if (playerWinner !== null)
                         {
+                            console.log("A player won!")
                             const isWinnerLight: boolean = playerWinner === color.light
-                            games.changeState({ gameId, winnerColor: playerWinner})
+                            games.changeState({ newState: state.complete, gameId, winnerColor: playerWinner})
                             io.to(room).emit("endGame", { isWinnerLight })
                         }
                     }

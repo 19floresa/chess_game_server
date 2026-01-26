@@ -1,5 +1,6 @@
 import postFetch from "../../lib/api/postFetch.ts"
 import type gameInfo from "../types/gameInfo.ts"
+import state from "../types/state.ts"
 
 export default async function storeGame(game: gameInfo)
 {
@@ -11,7 +12,7 @@ export default async function storeGame(game: gameInfo)
         idWinner: idWinner,
         start: timeStarted,
         end: timeCompleted,
-        status: status,
+        status: state[status],
         gameSteps: gameHistory
     }, "game")
 }
