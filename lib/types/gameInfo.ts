@@ -8,7 +8,7 @@ export default interface gameInfo {
     connectedP1: boolean
     connectedP2: boolean
     gameId: number
-    gameHistory: [ number, number, number, number ][]
+    gameHistory: [ number, number, number, number, number ][]
     timeStarted: string
     timeCompleted: string
     lastAccessed: string // TODO: handle this

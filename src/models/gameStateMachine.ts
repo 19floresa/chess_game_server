@@ -82,7 +82,7 @@ export class GameStateMachine
         if (game !== null)
         {
             this.#currentPlayers.removeAll(game)
-            game.status = state.complete
+            game.status = state.complete 
             game.timeCompleted = generateTimeUTC()
             game.idWinner = winnerColor === color.light ? game.idP1 : game.idP2
             await storeGame(game)

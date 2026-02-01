@@ -12,7 +12,7 @@ export default async function storeGame(game: gameInfo)
         idWinner: idWinner,
         start: timeStarted,
         end: timeCompleted,
-        status: state[status],
+        status: state[status], // TODO: "Win ", "Loss", "Draw",
         gameSteps: gameHistory
     }, "game")
 }
