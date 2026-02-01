@@ -16,6 +16,7 @@ export default class Chessboard
     #player2: Player  // white player (light)
 
     #winner: (color|null)
+    #waitingOnPlayerPromote: boolean
 
     #currentPlayer: color
     #gameBoard: Array<Array<Chesspiece|null>>
@@ -48,6 +49,7 @@ export default class Chessboard
         this.#player2 = player2
         this.#currentPlayer = color.light
         this.#winner = null
+        this.#waitingOnPlayerPromote = false
     }
 
     move({ oldX, oldY, 
@@ -108,25 +110,24 @@ export default class Chessboard
         this.#isWinConditionMet()
         this.changePlayer()
 
-        // const [ targetName, targetColor] = piece.getName().split("_") // TODO fix and put before piece is moved to check if king is in checkmate
-        // if ((targetName === "pawn"))
-        // {
-        //     if ((targetColor === "dark") && (newY === 7))   
-        //     {
-        //         this.#promote(newX, newY)
-        //     }
-        //     else if ((targetColor === "light") && (newY === 0))
-        //     {
-        //         this.#promote(newX, newY)
-        //     }
-        // } 
+        const [ targetName, targetColor] = piece.getName().split("_")
+        const isDarkPawnPromote  = (targetColor === "dark")  && (newY === 7)
+        const isLightPawnPromote = (targetColor === "light") && (newY === 0)
+        if ((targetName === "pawn") && (isDarkPawnPromote || isLightPawnPromote))
+        {
+            this.#waitingOnPlayerPromote = true
+        } 
+        else
+        {
+            this.changePlayer()
+        }
         
         // TODO: win condition
         // TODO: stalement
         return true
     }
 
-    #promote(x: number, y: number, n: number) // TODO: Move to frontend
+    promote(x: number, y: number, n: number): boolean // TODO: Move to frontend
     {
         const piece: Chesspiece = this.#getPiece(x, y)! // NOTE: Piece will always be a pawn
         const color: color = piece.getColor()
@@ -157,13 +158,21 @@ export default class Chessboard
                 newPiece = new Knight(x, y, color)
                 break
             default:
-                throw Error(`Pawn pronotion is not valid. ${n}`)
+                return false
         }
+
+        this.#waitingOnPlayerPromote = false
 
         const player: Player = this.#getPlayer(color)
         player.removePiece(piece)
         player.addPiece(newPiece)
         this.#setPiece(newPiece, x, y)
+        return true
+    }
+
+    isWaitingOnPlayerPromote(): boolean
+    {
+        return this.#waitingOnPlayerPromote
     }
     
     isWithinValidRange(newX: number, newY: number): boolean 
