@@ -10,7 +10,7 @@ export interface ServerToClientEvents {
    */
   endGame: ({ isWinnerLight }: { isWinnerLight: boolean }) => void
   connectPlayer: () => void
-  validMoveOpponent: ({ x, y, x2, y2 }: { x: number, y: number, x2: number, y2: number }) => void
+  validMoveOpponent: ({ x, y, x2, y2, promote }: { x: number, y: number, x2: number, y2: number, promote: number }) => void
 }
 
 export interface ClientToServerEvents {
@@ -39,6 +39,15 @@ export interface ClientToServerEvents {
      * @param callback  Callback function
      */
     move: ({ x, y, x2, y2 }: { x: number, y: number, x2: number, y2: number }, callback: any) => void
+
+    /**
+     * This function promotes a pawn.
+     * @param param0.x        X position of pawn
+     * @param param0.y        Y position of pawn
+     * @param param0.promote  promote value of pawn
+     * @param callback        Callback function
+     */
+    promote: ({ x, y, promote }: { x: number, y: number, promote: number }, callback: any) => void
 }
 
 export interface InterServerEvents {
