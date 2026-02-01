@@ -84,20 +84,24 @@ io.on("connection", (socket: Socket) =>
                     if (isMoveValid === true)
                     {
                         // Save game move
-                        game!.gameHistory.push([ x, y, x2, y2])
+                        game!.gameHistory.push([ x, y, x2, y2, 0 ])
 
                         // Response to game move
-                        callback({ status: "ok", message: `moved: (${x}, ${y}) to (${x2}, ${y2}).` })
-                        socket.to(room).emit("validMoveOpponent", { x, y, x2, y2 })
-
-                        // Save game once a player wins
-                        const playerWinner: color | null = gameEngine.getWinner()
-                        if (playerWinner !== null)
+                        const isPromoting = gameEngine.isWaitingOnPlayerPromote()
+                        callback({ status: "ok", message: `Moved: (${x}, ${y}) to (${x2}, ${y2}).`, isPromoting })
+                        if (isPromoting == false)
                         {
-                            console.log("A player won!")
-                            const isWinnerLight: boolean = playerWinner === color.light
-                            games.changeState({ newState: state.complete, gameId, winnerColor: playerWinner})
-                            io.to(room).emit("endGame", { isWinnerLight })
+                            socket.to(room).emit("validMoveOpponent", { x, y, x2, y2, promote: 0 })
+
+                            // Save game once a player wins
+                            const playerWinner: color | null = gameEngine.getWinner()
+                            if (playerWinner !== null)
+                            {
+                                console.log("A player won!")
+                                const isWinnerLight: boolean = playerWinner === color.light
+                                games.changeState({ newState: state.complete, gameId, winnerColor: playerWinner})
+                                io.to(room).emit("endGame", { isWinnerLight })
+                            }
                         }
                     }
                     else
@@ -121,9 +125,63 @@ io.on("connection", (socket: Socket) =>
         }
     })
 
+    socket.on("promote", ({ x, y, promote}, callback) =>
+    {
+        const rooms: string[] =  [...socket.rooms]
+        const room: string = rooms[1] as string // TODO: Check room number, if multiple exist
+        const gameId: number = parseInt(room.slice(5))
+        if (isNaN(gameId) === false)
+        {
+            const currentState: boolean = games.isGameRunning(gameId)
+            if (currentState === true)
+            {
+                const game: gameInfo | null = games.getGame(gameId)
+                const gameEngine: Chessboard | null = game !== null ? game.gameEngine : null
+                if (gameEngine !== null)
+                {
+                    console.log(`Promoted: (${x}, ${y}) to ${promote}`)
+                    const lastStep = game?.gameHistory[-1]
+                    if (lastStep !== null)
+                    {
+                        const result = gameEngine.promote(x,y, promote)
+                        if (result === true)
+                        {
+                            lastStep![4] = promote
+                            const [ x, y, x2, y2, _ ] = lastStep!
+                            callback({ status: "ok", message: `moved: (${x}, ${y}) to ${promote}` })
+                            socket.to(room).emit("validMoveOpponent", { x, y, x2, y2, promote })
+                        }
+                        else
+                        {
+                            callback({ status: "bad", message: "Promotion value is invalid."})
+                        }
+                    }
+                    else
+                    {
+                        callback({ status: "bad", message: "Invalid promotion request."})
+                    }
+
+                }
+                else
+                {
+                    callback({ status: "bad", message: "Game was not found."})
+                }
+            }
+            else 
+            {
+                callback({ status: "bad", message: "Game state: Game is not running."})
+            }
+        }
+        else
+        {
+            callback({ status: "bad", message: "Invalid room number"})
+        }
+
+    })
+
     socket.on("disconnect", () =>
     {
-        console.log("disconnected!") // TODO: Save data to db
+        console.log("disconnected!") 
     })
 })
 
