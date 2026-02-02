@@ -17,6 +17,7 @@ export default class Chessboard
 
     #winner: (color|null)
     #waitingOnPlayerPromote: boolean
+    #lastCapturedPiece: number
 
     #currentPlayer: color
     #gameBoard: Array<Array<Chesspiece|null>>
@@ -50,6 +51,7 @@ export default class Chessboard
         this.#currentPlayer = color.light
         this.#winner = null
         this.#waitingOnPlayerPromote = false
+        this.#lastCapturedPiece = 0
     }
 
     move({ oldX, oldY, 
@@ -104,6 +106,7 @@ export default class Chessboard
             const otherPlayerColor: color = (playerColor === color.dark) ?  color.light : color.dark
             const otherPlayer: Player =  this.#getPlayer(otherPlayerColor)
             otherPlayer.removePiece(oldPiece)
+            this.#setLastCapturedPiece(oldPiece) 
         }
 
         this.#movePiece(piece, newX, newY)
@@ -125,6 +128,42 @@ export default class Chessboard
         // TODO: win condition
         // TODO: stalement
         return true
+    }
+
+    #setLastCapturedPiece(piece: Chesspiece)
+    {
+        const [ targetName, targetColor ] = piece.getName().split("_")
+        switch(targetName)
+        {
+            case "pawn":
+                this.#lastCapturedPiece = 1
+                break
+            case "knight":
+                this.#lastCapturedPiece = 2
+                break
+            case "bishop":
+                this.#lastCapturedPiece = 3
+                break
+            case "rook":
+                this.#lastCapturedPiece = 4
+                break
+            case "queen":
+                this.#lastCapturedPiece = 5
+                break
+            case "king":
+                this.#lastCapturedPiece = 6
+                break
+            default:
+                this.#lastCapturedPiece = 0
+                break
+        }
+    }
+
+    getLastCapturedPiece(): number
+    {
+        const lastPiece: number = this.#lastCapturedPiece
+        this.#lastCapturedPiece = 0
+        return lastPiece
     }
 
     promote(x: number, y: number, n: number): boolean // TODO: Move to frontend

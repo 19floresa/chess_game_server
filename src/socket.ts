@@ -84,7 +84,8 @@ io.on("connection", (socket: Socket) =>
                     if (isMoveValid === true)
                     {
                         // Save game move
-                        game!.gameHistory.push([ x, y, x2, y2, 0 ])
+                        const capture: number = gameEngine.getLastCapturedPiece()
+                        game!.gameHistory.push([ x, y, x2, y2, 0, capture ])
 
                         // Response to game move
                         const isPromoting = gameEngine.isWaitingOnPlayerPromote()
