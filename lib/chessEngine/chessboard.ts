@@ -111,7 +111,7 @@ export default class Chessboard
 
         this.#movePiece(piece, newX, newY)
         this.#isWinConditionMet()
-        this.changePlayer()
+        //this.changePlayer()
 
         const [ targetName, targetColor] = piece.getName().split("_")
         const isDarkPawnPromote  = (targetColor === "dark")  && (newY === 7)
