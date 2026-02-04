@@ -156,7 +156,8 @@ io.on("connection", (socket: Socket) =>
         }
 
         // Check if game move has been performed
-        const lastStep = game?.gameHistory[-1]
+        const len = game!.gameHistory.length
+        const lastStep = game?.gameHistory[len-1] ?? null
         if (lastStep === null)
         {
             callback({ status: "bad", message: "Invalid promotion request."})
