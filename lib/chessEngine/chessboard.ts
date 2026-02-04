@@ -205,6 +205,7 @@ export default class Chessboard
         player.removePiece(piece)
         player.addPiece(newPiece)
         this.#setPiece(newPiece, x, y)
+        this.changePlayer()
         return true
     }
 
