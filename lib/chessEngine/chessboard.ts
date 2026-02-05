@@ -165,20 +165,10 @@ export default class Chessboard
         return lastPiece
     }
 
-    promote(x: number, y: number, n: number): boolean // TODO: Move to frontend
+    promote(x: number, y: number, n: number): boolean
     {
         const piece: Chesspiece = this.#getPiece(x, y)! // NOTE: Piece will always be a pawn
         const color: color = piece.getColor()
-        // let val: string | null= ""
-        // let n: number = -1
-        // while(true)
-        // {
-        //     val = prompt("Promote Pawn: Queen (1), Rook (2), Bishop (3), Knight (4):")
-        //     if (val === null) continue
-        //     n = Number(val)
-        //     if (isNaN(n)) continue
-        //     if ((n > 0) && (n < 5)) break
-        // }
 
         let newPiece: Chesspiece
         switch(n)
@@ -228,7 +218,7 @@ export default class Chessboard
         const [ current, opponent ] = c === color.light ? [ this.#player2, this.#player1 ] : [ this.#player1, this.#player2 ]
         const currentKing: Chesspiece = current.getKing()
         const opponentPieces: Chesspiece[] = opponent.getAllPieces()
-        const currentPieces: Chesspiece[] = current.getAllPieces()
+        //const currentPieces: Chesspiece[] = current.getAllPieces()
         const [ x, y ]: [ number, number ] = currentKing.getCurrentPosition()
 
         // Find all the pieces that put the king in check
@@ -249,37 +239,38 @@ export default class Chessboard
             }
         }
 
-        // Find any pieces that can be countered the king check
-        const piecesCounterCheck = []
-        for (const culprit of culprits)
-        {
-            const [ x, y ]: [ number, number ] = culprit.getCurrentPosition()
-            for (const piece of currentPieces)
-            {
-                const result: boolean =  piece.move(x, y)
-                if (result === true) 
-                {
-                    const result2: boolean = this.#checkSquaresJumped(piece, x, y, board)
-                    if (result2 === true)
-                    {
-                        piecesCounterCheck.push(piece)
-                    }
-                }
-            }
-        }
+        // // Find any pieces that can countered the king check
+        // const piecesCounterCheck = []
+        // for (const culprit of culprits)
+        // {
+        //     const [ x, y ]: [ number, number ] = culprit.getCurrentPosition()
+        //     for (const piece of currentPieces)
+        //     {
+        //         const result: boolean =  piece.move(x, y)
+        //         if (result === true) 
+        //         {
+        //             const result2: boolean = this.#checkSquaresJumped(piece, x, y, board)
+        //             if (result2 === true)
+        //             {
+        //                 piecesCounterCheck.push(piece)
+        //             }
+        //         }
+        //     }
+        // }
 
-        return [ kingCheckStatus, piecesCounterCheck ]
+
+        return [ kingCheckStatus, culprits ]//piecesCounterCheck ]
     }
 
-    #isWinConditionMet(): void
+    #canKingMove(): boolean
     {
         const opponentColor: color = this.getColorOpponent()
         const opponentPlayer: Player = this.#getPlayer(opponentColor)
         const [ x, y ]: [ number, number ] = opponentPlayer.getKing().getCurrentPosition()
         const potentialSpots: [ number, number ][] =
         [
-            [ -1, -1 ], [ 0,  1 ], [ 1,  1 ], 
-            [ -1,  0 ], [ 0,  0 ], [ 1,  0 ], 
+            [ -1,  1 ], [ 0,  1 ], [ 1,  1 ], 
+            [ -1,  0 ],/* [ 0,  0 ], */[ 1,  0 ], 
             [ -1, -1 ], [ 0, -1 ], [ 1, -1 ],
         ]
 
@@ -301,14 +292,39 @@ export default class Chessboard
             this.#movePiece(king, x2, y2)
 
             // King can still move safely
-            const [ isKingCheck, piecesCounterCheck ] = this.#isKingInCheck(opponentColor, board)
+            const [ isKingCheck, _ ] = this.#isKingInCheck(opponentColor, board)
             this.#movePiece(king, x, y)
             board[y2]![x2] = oldPiece
 
-            if (!isKingCheck) return                                         // Opponent king can still move
-            if ((isStartPosition && piecesCounterCheck.length !== 0)) return // Opponent can counter the check with another piece
+            if (!isKingCheck) return true // Opponent king can still move
         }
+        
+        return false
+    }
 
+    #canCulpritsBeCountered(): boolean
+    {
+        const board = this.#gameBoard
+        const opponentColor: color = this.getColorOpponent()
+        const opponentPlayer: Player = this.#getPlayer(opponentColor)
+        const opponentKing: King = opponentPlayer.getKing()
+        const currentColor: color = this.getColorCurrentPlayer()
+        const currentPlayer: Player = this.#getPlayer(currentColor)
+        //const [ x, y ]: [ number, number ] = opponentKing.getCurrentPosition()
+        const [ isKingCheck, culprits ] = this.#isKingInCheck(opponentColor, board)
+        if (isKingCheck)
+        {
+            if (culprits.length >= 2) return false // Cant counter more than 1 piece
+            const culprit = culprits[0]
+            
+        }
+        return true
+    }
+
+    #isWinConditionMet(): void // TODO: After promote check if king in check
+    {
+        if (this.#canKingMove()) return
+        if (this.#canCulpritsBeCountered()) return
         this.#setWinner(this.getColorCurrentPlayer())
     }
 
