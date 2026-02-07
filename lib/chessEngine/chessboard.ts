@@ -6,6 +6,7 @@ import Queen from "./queen.ts"
 import Rook from "./rook.ts"
 import Knight from "./knight.ts"
 import Bishop from "./bishop.ts"
+import Pawn from "./pawn.ts"
 
 export default class Chessboard 
 {
@@ -71,13 +72,15 @@ export default class Chessboard
         if (!this.#checkNewSquare(playerColor, newX, newY)) return false // Dont move to square of our pieces
         if (!this.#checkSquaresJumped(piece, newX, newY))   return false // Check all squares jumped over are empty
          
-        // Check if king will be in check
-        const [ isKingCheck, piecesCounterCheck ] = this.#isKingInCheck()
+        // Check if king is in check
+        const [ isKingCheck, _ ] = this.#isKingInCheck()
         const isPieceKing: boolean = (piece instanceof King)
         if (isKingCheck && !isPieceKing)
         {
+            // Check if piece can counter the check
             let flag = true
-            for (const p of piecesCounterCheck)
+            const [ _, currentCounters ] = this.#canCulpritsBeCountered()
+            for (const p of currentCounters)
             {
                 const [ x, y ] = piece.getCurrentPosition()
                 const [ x2, y2 ] = p.getCurrentPosition()
@@ -93,13 +96,18 @@ export default class Chessboard
         }
         else if (isPieceKing)
         {
-            // Check if king is moving to an invalid position
+            const tempPiece: Chesspiece | null = this.#gameBoard[newY]![newX]!
+            // Check if new position will take king out of check
             this.#movePiece(piece, newX, newY)
-            const [ isKingCheck, _ ] = this.#isKingInCheck()
+            const [ isKingCheck2, _ ] = this.#isKingInCheck()
             this.#movePiece(piece, oldX, oldY)
-            if (isKingCheck === true) return false
+            this.#gameBoard[newY]![newX]! = tempPiece
+            console.log("hello.")
+            if (isKingCheck2 === true) return false
+            console.log("Should not get past here.")
         }
 
+        // Remove player piece
         const oldPiece: Chesspiece | null = this.#getPiece(newX, newY)
         if (oldPiece !== null) // remove piece from player
         {
@@ -218,48 +226,22 @@ export default class Chessboard
         const [ current, opponent ] = c === color.light ? [ this.#player2, this.#player1 ] : [ this.#player1, this.#player2 ]
         const currentKing: Chesspiece = current.getKing()
         const opponentPieces: Chesspiece[] = opponent.getAllPieces()
-        //const currentPieces: Chesspiece[] = current.getAllPieces()
+        const opponentColor: color = opponentPieces[0]!.getColor()
         const [ x, y ]: [ number, number ] = currentKing.getCurrentPosition()
 
         // Find all the pieces that put the king in check
         const culprits = []
-        let kingCheckStatus = false
         for (const piece of opponentPieces)
         {
             // Check if any piece can reach the king
-            const result: boolean = piece.move(x, y)
-            if (result === true) 
-            {
-                const result2: boolean = this.#checkSquaresJumped(piece, x, y, board)
-                if (result2 === true)
-                {
-                    kingCheckStatus = true
-                    culprits.push(piece)
-                }
-            }
+            const isPieceMove: boolean = piece.move(x, y)
+            const isPieceJump: boolean = this.#checkSquaresJumped(piece, x, y, board)
+            const isSpotValid: boolean = this.#checkNewSquare(opponentColor, x, y)
+            if (isPieceMove && isPieceJump && isSpotValid) culprits.push(piece)
         }
 
-        // // Find any pieces that can countered the king check
-        // const piecesCounterCheck = []
-        // for (const culprit of culprits)
-        // {
-        //     const [ x, y ]: [ number, number ] = culprit.getCurrentPosition()
-        //     for (const piece of currentPieces)
-        //     {
-        //         const result: boolean =  piece.move(x, y)
-        //         if (result === true) 
-        //         {
-        //             const result2: boolean = this.#checkSquaresJumped(piece, x, y, board)
-        //             if (result2 === true)
-        //             {
-        //                 piecesCounterCheck.push(piece)
-        //             }
-        //         }
-        //     }
-        // }
-
-
-        return [ kingCheckStatus, culprits ]//piecesCounterCheck ]
+        const isKingCheck = culprits.length !== 0 
+        return [ isKingCheck, culprits ]
     }
 
     #canKingMove(): boolean
@@ -270,7 +252,7 @@ export default class Chessboard
         const potentialSpots: [ number, number ][] =
         [
             [ -1,  1 ], [ 0,  1 ], [ 1,  1 ], 
-            [ -1,  0 ],/* [ 0,  0 ], */[ 1,  0 ], 
+            [ -1,  0 ],            [ 1,  0 ], 
             [ -1, -1 ], [ 0, -1 ], [ 1, -1 ],
         ]
 
@@ -280,13 +262,9 @@ export default class Chessboard
         {
             const [ xOffset, yOffset ] = newSpot
             const [ x2, y2 ] = [ (x + xOffset), (y + yOffset) ]
-            const isStartPosition = (x2 === x && y2 === y)
 
             if (!this.isWithinValidRange(x2, y2)) continue
-            if (!isStartPosition)
-            {
-                if (!this.#checkNewSquare(opponentColor, x2, y2) ) continue // Dont move to square of our pieces (NOTE: Checks the current gameBoard)
-            }
+            if (!this.#checkNewSquare(opponentColor, x2, y2) ) continue // Dont move to square of our pieces (NOTE: Checks the current gameBoard)
 
             const oldPiece: Chesspiece | null = board[y2]![x2]!
             this.#movePiece(king, x2, y2)
@@ -302,29 +280,109 @@ export default class Chessboard
         return false
     }
 
-    #canCulpritsBeCountered(): boolean
+    #canCulpritsBeCountered(): [ boolean, Chesspiece[] ]
     {
         const board = this.#gameBoard
         const opponentColor: color = this.getColorOpponent()
-        const opponentPlayer: Player = this.#getPlayer(opponentColor)
-        const opponentKing: King = opponentPlayer.getKing()
         const currentColor: color = this.getColorCurrentPlayer()
         const currentPlayer: Player = this.#getPlayer(currentColor)
-        //const [ x, y ]: [ number, number ] = opponentKing.getCurrentPosition()
+        const currentPlayerPieces: Chesspiece[] = currentPlayer.getAllPieces()     
+        const currentKing: Chesspiece = currentPlayer.getKing()   
+        
+        // Check if king is in check
         const [ isKingCheck, culprits ] = this.#isKingInCheck(opponentColor, board)
-        if (isKingCheck)
+        if (!isKingCheck) return [ true, [] ] // Not in check
+        if (culprits.length >= 2) return [ false, [] ] // Cant counter more than 1 piece
+        
+        // Check if opponent piece can be removed
+        const currentCounters = []
+        const culprit = culprits[0]
+        const [ x, y ]: [ number, number ] = culprit!.getCurrentPosition()        
+        for (const piece of currentPlayerPieces)
         {
-            if (culprits.length >= 2) return false // Cant counter more than 1 piece
-            const culprit = culprits[0]
-            
+            const isPieceMove: boolean = piece.move(x, y)
+            const isPieceJump: boolean = this.#checkSquaresJumped(piece, x, y, board)
+            if (isPieceMove && isPieceJump)
+            {
+                // Check that king wont be put in check
+                const [ oldX, oldY ] = piece.getCurrentPosition()
+                const tempPiece: Chesspiece | null = board[y]![x]!
+
+                this.#movePiece(piece, x, y)
+                const [ isKingCheck, _ ] = this.#isKingInCheck(opponentColor, board)
+                this.#movePiece(piece, oldX, oldY)
+                board[y]![x] = tempPiece
+
+                if (!isKingCheck) currentCounters.push(piece) // Piece can be countered
+            }
         }
-        return true
+
+        const isKnight = (culprit instanceof Knight)
+        const isPawn = (culprit instanceof Pawn)
+        if (isKnight || isPawn)
+        {
+            const isOpponentCountered = currentCounters.length !== 0
+            return [ isOpponentCountered, currentCounters ]
+        }
+
+        // Check if opponent piece can be blocked
+        const calcOffset = (val: number) =>  (val === 0) ? 0 : ((val > 0) ? 1 : -1)
+        const [ kingX, kingY ] = currentKing.getCurrentPosition()
+        const xDif = x - kingX
+        const yDif = y - kingY
+        const xOffset = calcOffset(xDif)
+        const yOffset = calcOffset(yDif)
+        for (let i = 1 ;; i++)
+        {
+            const xPos = kingX + (xOffset * i)
+            const yPos = kingY + (yOffset * i)
+            if ((x === xPos) && (y === yPos)) break // Skip final check b/c already checked if piece can be removed.
+            for (const piece of currentPlayerPieces)
+            {
+                const isPieceMove: boolean = piece.move(xPos, yPos)
+                const isPieceJump: boolean = this.#checkSquaresJumped(piece, xPos, yPos, board)
+                const isSpotValid: boolean = this.#checkNewSquare(opponentColor, xPos, yPos)
+                if (isPieceMove && isPieceJump && isSpotValid) 
+                {
+                    // Check if piece already exist so we dont add a duplicate
+                    let flag = true
+                    for (const p of currentCounters)
+                    {
+                        const [ x1, y1 ] = p.getCurrentPosition()
+                        const [ x2, y2 ] = piece.getCurrentPosition()
+                        if ((x1 === x2) && (y1 === y2))
+                        {
+                            flag = false
+                            break
+                        }
+                    }
+
+                    if (flag)
+                    {
+                        // Check that king wont be put in check
+                        const [ oldX, oldY ] = piece.getCurrentPosition()
+                        const tempPiece: Chesspiece | null = board[yPos]![xPos]!
+
+                        this.#movePiece(piece, xPos, yPos)
+                        const [ isKingCheck, _ ] = this.#isKingInCheck(currentColor, board)
+                        this.#movePiece(piece, oldX, oldY)
+                        board[yPos]![xPos] = tempPiece
+
+                        if (!isKingCheck) currentCounters.push(piece)
+                    }
+                }
+            }
+        }
+        
+        const isOpponentCountered = currentCounters.length !== 0
+        return [ isOpponentCountered, currentCounters ]
     }
 
     #isWinConditionMet(): void // TODO: After promote check if king in check
     {
         if (this.#canKingMove()) return
-        if (this.#canCulpritsBeCountered()) return
+        const [ isOpponentCountered, _ ] = this.#canCulpritsBeCountered()
+        if (isOpponentCountered) return
         this.#setWinner(this.getColorCurrentPlayer())
     }
 
