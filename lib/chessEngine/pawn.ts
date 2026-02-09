@@ -49,8 +49,12 @@ export default class Pawn extends Chesspiece
             if (oldPieceColor === color) return false
         }
         
-        this.#firstMove = false
         return true
+    }
+
+    setFirstMove()
+    {
+        this.#firstMove = false
     }
 
     // TODO: Implement en passant

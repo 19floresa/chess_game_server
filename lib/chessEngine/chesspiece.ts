@@ -24,7 +24,7 @@ export default abstract class Chesspiece {
 
     isWithinValidRange(newX: number, newY: number): boolean 
     {
-        const [ maxWidth, maxLength ] = [ 8, 8 ] // TODO: Fix
+        const [ maxWidth, maxLength ] = [ 8, 8 ]
         const [ minWidth, minLength ] = [ 0, 0 ]
         const xValid = ((newX >= minWidth) && (newX < maxWidth))
         const yValid = ((newY >= minLength) && (newY < maxLength))
