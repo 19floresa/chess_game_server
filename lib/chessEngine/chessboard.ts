@@ -99,7 +99,7 @@ export default class Chessboard
             const isKingCheck2 = this.#nextMoveKingCheck(piece, newX, newY, playerColor, this.#gameBoard)
             if (isKingCheck2 === true) 
             {
-                this.#isWinConditionMet()
+                this.isWinConditionMet()
                 return false
             }
         }
@@ -121,7 +121,7 @@ export default class Chessboard
         }
 
         this.#movePiece(piece, newX, newY)
-        this.#isWinConditionMet()
+        this.isWinConditionMet()
 
         const [ targetName, targetColor] = piece.getName().split("_")
         const isDarkPawnPromote  = (targetColor === "dark")  && (newY === 7)
@@ -135,7 +135,6 @@ export default class Chessboard
             this.changePlayer()
         }
         
-        // TODO: win condition
         // TODO: stalement
         return true
     }
@@ -373,7 +372,7 @@ export default class Chessboard
         return isKingCheck
     }
 
-    #isWinConditionMet(): void // TODO: After promote check if king in check
+    isWinConditionMet(): void // TODO: After promote check if king in check
     {
         if (this.#canKingMove()) return
         const currentColor = this.getColorCurrentPlayer()

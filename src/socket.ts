@@ -166,7 +166,11 @@ io.on("connection", (socket: Socket) =>
 
         // Check if promote is valid
         const result = gameEngine.promote(x,y, promote)
-        if (result === false)
+        if (result === true)
+        {
+            gameEngine.isWinConditionMet()
+        }
+        else
         {
             callback({ status: "bad", message: "Promotion value is invalid."})
             return
@@ -178,6 +182,14 @@ io.on("connection", (socket: Socket) =>
         callback({ status: "ok", message: `Promoted: (${x}, ${y}) to ${promote}` })
         socket.to(room).emit("validMoveOpponent", { x: xPos, y: yPos, x2, y2, promote })
 
+        const playerWinner: color | null = gameEngine.getWinner()
+        if (playerWinner !== null)
+        {
+            console.log("A player won!")
+            const isWinnerLight: boolean = playerWinner === color.light
+            games.changeState({ newState: state.complete, gameId, winnerColor: playerWinner})
+            io.to(room).emit("endGame", { isWinnerLight })
+        }
     })
 
     socket.on("disconnect", () =>
