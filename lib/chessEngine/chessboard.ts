@@ -79,7 +79,7 @@ export default class Chessboard
         {
             // Check if piece can counter the check
             let flag = true
-            const [ _, currentCounters ] = this.#canCulpritsBeCountered()
+            const [ _, currentCounters ] = this.#canCulpritsBeCountered(playerColor)
             for (const p of currentCounters)
             {
                 const [ x, y ] = piece.getCurrentPosition()
@@ -92,19 +92,22 @@ export default class Chessboard
             }
 
             // Check if the king check can be countered
-            if (flag) return false
+            if (!flag) return false
         }
         else if (isPieceKing)
         {
-            const tempPiece: Chesspiece | null = this.#gameBoard[newY]![newX]!
-            // Check if new position will take king out of check
-            this.#movePiece(piece, newX, newY)
-            const [ isKingCheck2, _ ] = this.#isKingInCheck()
-            this.#movePiece(piece, oldX, oldY)
-            this.#gameBoard[newY]![newX]! = tempPiece
-            console.log("hello.")
-            if (isKingCheck2 === true) return false
-            console.log("Should not get past here.")
+            const isKingCheck2 = this.#nextMoveKingCheck(piece, newX, newY, playerColor, this.#gameBoard)
+            if (isKingCheck2 === true) 
+            {
+                this.#isWinConditionMet()
+                return false
+            }
+        }
+
+        // Pawn first Move // TODO: King and knight
+        if (piece instanceof Pawn)
+        {
+            piece.setFirstMove()
         }
 
         // Remove player piece
@@ -265,32 +268,20 @@ export default class Chessboard
             if (!this.isWithinValidRange(x2, y2)) continue
             if (!this.#checkNewSquare(opponentColor, x2, y2) ) continue // Dont move to square of our pieces (NOTE: Checks the current gameBoard)
 
-            const oldPiece: Chesspiece | null = board[y2]![x2]!
-            this.#movePiece(opponentKing, x2, y2)
-
             // King can still move safely
-            const [ isKingCheck, _ ] = this.#isKingInCheck(opponentColor, board)
-            this.#movePiece(opponentKing, x, y)
-            board[y2]![x2] = oldPiece
-
+            const isKingCheck: boolean = this.#nextMoveKingCheck(opponentKing, x2, y2, opponentColor, board)
             if (!isKingCheck) return true // Opponent king can still move
         }
-        
         return false
     }
 
-    #canCulpritsBeCountered(): [ boolean, Chesspiece[] ]
+    #canCulpritsBeCountered(currentColor: color): [ boolean, Chesspiece[] ]
     {
         const board = this.#gameBoard
-        const opponentColor: color = this.getColorOpponent()
+        const opponentColor: color = currentColor === color.light ? color.dark : color.light
         const opponentPlayer: Player = this.#getPlayer(opponentColor)
         const opponentPieces: Chesspiece[] = opponentPlayer.getAllPieces()
-        const opponentKing: King = opponentPlayer.getKing() 
-        
-        //const currentColor: color = this.getColorCurrentPlayer()
-        //const currentPlayer: Player = this.#getPlayer(currentColor)
-        //const currentPlayerPieces: Chesspiece[] = currentPlayer.getAllPieces()     
-        //const currentKing: Chesspiece = currentPlayer.getKing()   
+        const opponentKing: King = opponentPlayer.getKing()   
         
         // Check if king is in check
         const [ isKingCheck, culprits ] = this.#isKingInCheck(opponentColor, board)
@@ -308,14 +299,7 @@ export default class Chessboard
             if (isPieceMove && isPieceJump)
             {
                 // Check that king wont be put in check
-                const [ oldX, oldY ] = piece.getCurrentPosition()
-                const tempPiece: Chesspiece | null = board[y]![x]!
-
-                this.#movePiece(piece, x, y)
-                const [ isKingCheck, _ ] = this.#isKingInCheck(opponentColor, board)
-                this.#movePiece(piece, oldX, oldY)
-                board[y]![x] = tempPiece
-
+                const isKingCheck: boolean = this.#nextMoveKingCheck(piece, x, y, opponentColor, board)
                 if (!isKingCheck) currentCounters.push(piece) // Piece can be countered
             }
         }
@@ -364,14 +348,7 @@ export default class Chessboard
                     if (flag)
                     {
                         // Check that king wont be put in check
-                        const [ oldX, oldY ] = piece.getCurrentPosition()
-                        const tempPiece: Chesspiece | null = board[yPos]![xPos]!
-
-                        this.#movePiece(piece, xPos, yPos)
-                        const [ isKingCheck, _ ] = this.#isKingInCheck(opponentColor, board)
-                        this.#movePiece(piece, oldX, oldY)
-                        board[yPos]![xPos] = tempPiece
-
+                        const isKingCheck: boolean = this.#nextMoveKingCheck(piece, xPos, yPos, opponentColor, board)
                         if (!isKingCheck) currentCounters.push(piece)
                     }
                 }
@@ -382,10 +359,25 @@ export default class Chessboard
         return [ isOpponentCountered, currentCounters ]
     }
 
+    #nextMoveKingCheck(piece: Chesspiece, x2: number, y2: number, c: color, board: (Chesspiece|null)[][]): boolean
+    {
+        // Check that king wont be put in check
+        const [ x, y ] = piece.getCurrentPosition()
+        const tempPiece: Chesspiece | null = board[y2]![x2]!
+        
+        this.#movePiece(piece, x2, y2)
+        const [ isKingCheck, _ ] = this.#isKingInCheck(c, board)
+        this.#movePiece(piece, x, y)
+        board[y2]![x2] = tempPiece
+
+        return isKingCheck
+    }
+
     #isWinConditionMet(): void // TODO: After promote check if king in check
     {
         if (this.#canKingMove()) return
-        const [ isOpponentCountered, _ ] = this.#canCulpritsBeCountered()
+        const currentColor = this.getColorCurrentPlayer()
+        const [ isOpponentCountered, _ ] = this.#canCulpritsBeCountered(currentColor)
         if (isOpponentCountered) return
         this.#setWinner(this.getColorCurrentPlayer())
     }
@@ -420,7 +412,7 @@ export default class Chessboard
 
     #getPlayer(c: color): Player
     {
-        return (c === color.dark) ? this.#player1 : this.#player2 // TODO Player 1 should be light
+        return (c === color.dark) ? this.#player1 : this.#player2
     }
 
     #getPiece(xPos: number, yPos: number): Chesspiece | null
