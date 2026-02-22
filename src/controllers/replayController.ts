@@ -1,7 +1,7 @@
 import type { Request, Response } from "express"
 import postFetch from "../../lib/api/postFetch.ts"
 
-export default async function gameSearch(req: Request, res: Response): Promise<void>
+export default async function replayGame(req: Request, res: Response): Promise<void>
 {
     try
     {

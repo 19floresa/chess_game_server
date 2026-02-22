@@ -2,7 +2,7 @@
     "scripts": {
         "build": "tsc",
         "start": "node dist/server.js",
-        "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx' src/server.ts ",
+        "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx' src/server.ts",
         "test": "vitest --watch",
         "lint": "eslint 'src/**/*.ts'"
     },
