@@ -6,7 +6,6 @@ export default async function replayGame(req: Request, res: Response): Promise<v
     try
     {
         const { playerId, gameId } = req.body
-        console.log(playerId)
         const [ status, body ] = await postFetch({ playerId, gameId }, "replay")
         if (status === 200)
         {
