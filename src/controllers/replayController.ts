@@ -7,15 +7,15 @@ export default async function replayGame(req: Request, res: Response): Promise<v
     {
         const { playerId, gameId } = req.body
         console.log(playerId)
-        // const [ status, body ] = await postFetch({ playerId, gameId }, "replay")
-        // if (status === 200)
-        // {
-        //     res.send(body)
-        // }
-        // else
-        // {
-        //     throw new Error("Replays could not be retrieved.")
-        // }
+        const [ status, body ] = await postFetch({ playerId, gameId }, "replay")
+        if (status === 200)
+        {
+            res.send(body)
+        }
+        else
+        {
+            throw new Error("Replays could not be retrieved.")
+        }
     }
     catch (e)
     {
