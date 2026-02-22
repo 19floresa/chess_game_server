@@ -1,6 +1,6 @@
 export default async function postFetch(data: any, cmd: string): Promise< [ number, any ] >
 {
-    const res = await fetch(`http://app:3078/database/${cmd}`, 
+    const res = await fetch(`http://localhost:3078/database/${cmd}`, 
     { 
         method: 'POST', 
         headers: { "Content-Type": "application/json" },
