@@ -7,7 +7,8 @@ import { games } from "../models/gameStateMachine.ts"
 export default async function gameSearch(req: Request, res: Response): Promise<void>
 {
     try
-    {
+    {   
+        console.log("Searching for Player...")
         const { id }: { id: string } = req.body
         const playerId: number = parseInt(id)
         const gameId: number = games.findMatch(playerId) // TODO: Check players are not already in a match
