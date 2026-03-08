@@ -19,7 +19,7 @@ const io = new Server<
   ServerToClientEvents,
   InterServerEvents,
   SocketData
->(httpServer, { cors: { origin: "*" } }) // TODO: Remove *
+>(httpServer, { cors: { origin: "16.145.81.136" } }) // TODO: Remove *
 
 io.on("connection", (socket: Socket) => 
 {
