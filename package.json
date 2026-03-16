@@ -3,7 +3,9 @@
         "build": "tsc",
         "start": "node dist/server.js",
         "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx' src/server.ts",
+        "dev:docker": "'tsx' src/server.ts",
         "test": "vitest --watch",
+        "test:coverage": "vitest --coverage",
         "lint": "eslint 'src/**/*.ts'"
     },
     "type": "module",
@@ -12,7 +14,6 @@
         "cors": "^2.8.5",
         "dotenv": "^17.3.1",
         "express": "^5.1.0",
-        "nodemon": "^3.1.14",
         "socket.io": "^4.8.2",
         "tsx": "^4.21.0"
     },
@@ -21,8 +22,10 @@
         "@types/cookie-parser": "^1.4.10",
         "@types/express": "^5.0.6",
         "@types/node": "^25.0.3",
+        "@vitest/coverage-v8": "^4.0.16",
         "eslint": "^9.39.2",
         "install": "^0.13.0",
+        "nodemon": "^3.1.14",
         "npm": "^11.7.0",
         "prettier": "^3.7.4",
         "ts-node": "^10.9.2",
