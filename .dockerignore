@@ -5,4 +5,3 @@ README.md
 .git
 Dockerfile
 .dockerignore
-tests

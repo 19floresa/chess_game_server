@@ -1,0 +1,12 @@
+services:
+  game-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: chess-game-server
+    environment:
+      NODE_ENV: test
+    command: [ "npm", "run", "test" ]
+    profiles:
+      - test
