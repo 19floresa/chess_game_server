@@ -2,11 +2,14 @@ name: CI/CD - Chess App
 on:
   push:
     branches: [main]
+    
 jobs:
   test:
     name: Tests for Chess App
     runs-on: ubuntu-latest
+    
   steps:
+  
     - name: Retrieve repo code
       uses: actions/checkout@v6
     
@@ -31,7 +34,7 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
-    - name: Run tests inside container: 
+    - name: Run tests inside container 
       run: |
         docker run nodejs-app-test:latest
       env:
