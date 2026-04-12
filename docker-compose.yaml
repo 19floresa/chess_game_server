@@ -10,3 +10,5 @@ services:
     command: [ "npm", "run", "test" ]
     profiles:
       - test
+
+# test
