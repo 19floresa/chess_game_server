@@ -1,0 +1,40 @@
+name: CI/CD - Chess App
+on:
+  push:
+    branches: [main]
+jobs:
+  test:
+    name: Tests for Chess App
+    runs-on: ubuntu-latest
+  steps:
+    - name: Retrieve repo code
+      uses: actions/checkout@v6
+    
+    - name: Setup advance docker features
+      uses: docker/setup-buildx-action@v4
+    
+    - name: Cache npm dependencies
+      uses: actions/cache@v5
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-{{ hashFiles('**/package-lock.json') }}
+        restore-keys: ${{ runner.os }}-npm-
+
+    - name: Build test image
+      uses: docker/build-push-action@v7
+      with:
+        context: .
+        target: test
+        tags: nodejs-app-test:latest
+        platforms: linux/amd64
+        load: true
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+
+    - name: Run tests inside container: 
+      run: |
+        docker run nodejs-app-test:latest
+      env:
+        CI: true
+      timeout-minutes: 10
+    
