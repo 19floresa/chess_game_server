@@ -14,4 +14,11 @@ const config: Config = {
     url: process.env.URL || "http://localhost:3000"
 }
 
+// Overwrite for Test and development environments
+if (config.nodeEnv !== "production")
+{
+    config.port = 3056
+    config.url = "http://localhost:3000"
+}
+
 export default config
