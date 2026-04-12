@@ -8,6 +8,7 @@ import state from "../lib/types/state.ts"
 import type Chessboard from "../lib/chessEngine/chessboard.ts"
 import type gameInfo from "../lib/types/gameInfo.ts"
 import color from "../lib/types/color.ts"
+import config from "./config/config.ts"
 
 // TODO: Check that a player does not start another game
 // TODO: Cleanup stale games
@@ -23,7 +24,7 @@ const io = new Server<
     {
         cors: 
         {
-            origin: "http://16.145.81.136:3000",
+            origin: config.url,
             methods: ["GET", "POST"]
         } 
     }) 

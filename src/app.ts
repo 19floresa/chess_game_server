@@ -4,12 +4,13 @@ import cors from "cors"
 
 import gameRoutes from "./routes/gameRoutes.ts"
 import { errorHandler } from "./middleware/errorHandler.ts"
+import config from "./config/config.ts"
 
 const app = express()
 
 app.use(cors({
-    origin: [ 'http://localhost:3000', "http://16.145.81.136:3000" ],
-    methods: ['GET', 'POST',/* 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'*/],
+    origin: [ config.url ], // example:  "http://16.145.81.136:3000"
+    methods: ['GET', 'POST' ],
     allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
 }))
 
