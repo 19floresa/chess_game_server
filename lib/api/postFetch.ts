@@ -1,6 +1,8 @@
+import config from "../../src/config/config.ts"
+
 export default async function postFetch(data: any, cmd: string): Promise< [ number, any ] >
 {
-    const res = await fetch(`http://app:3078/database/${cmd}`, 
+    const res = await fetch(`http://app:${config.dbPort}/database/${cmd}`, 
     { 
         method: 'POST', 
         headers: { "Content-Type": "application/json" },
